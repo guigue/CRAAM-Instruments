@@ -6,7 +6,7 @@ from astropy.io import fits
 import pdb
 
 ##################################
-Version = '20200429T1900BRT'     #
+Version = '20200702T1847BRT'     #
 ##################################
 
 #######################################################
@@ -21,7 +21,7 @@ Version = '20200429T1900BRT'     #
 # reproduce identical results with a very well tested program.
 #
 # The method has a drawback, that one needs to fulfill part
-# of the Bpos structure (a dictionary in python), the rest is implemented as 
+# of the Bpos structure (a dictionary in python), the rest is implemented as
 # a method that reads the beam_pos.asc file. But, frankly, this is
 # a problem with SST data as well, which is not integrated! (Our fault)
 #
@@ -74,7 +74,7 @@ class Flux(object):
             print ('Exiti...\n\n')
 
         return
-                
+
     def att(self,x,y):
 
     # Beam determined in November 10, 2003
@@ -95,7 +95,7 @@ class Flux(object):
 
     def calcular_xy(self,t0,t1,t2,x43,y43,x42,y42,b_a,x_off,y_off,delta):
 
-        x = np.log(t2/t0) * y43 - np.log(t2 / t1) * y42 
+        x = np.log(t2/t0) * y43 - np.log(t2 / t1) * y42
         y = np.log(t2/t1) * x42 - np.log(t2 / t0) * x43
 
         x = (x/b_a + x_off) / (2 * delta)
@@ -118,11 +118,11 @@ class Flux(object):
         useconds     = int(seconds_frac * 1e6)
 
         return dt.datetime(year,month,day,hours,minutes,seconds_int,useconds)
-        
+
     def Analytic_Method(self, data, limite=1000, eliptic=False, temperature=False):
 
 # Original comments from sstpos.pro follow
-#        
+#
 # SSTPOS
 #
 # Compute positions and flux assuming a point-like source
@@ -132,7 +132,7 @@ class Flux(object):
 #
 # INPUT
 #   data:   structure with antenna temperatures (see sst_read)
-#   bpos:   structure with antenna beams position 
+#   bpos:   structure with antenna beams position
 #
 # OUTPUT
 #   res:    structure with positions, flux and more...
@@ -148,13 +148,13 @@ class Flux(object):
 #           allow position solutions to have a separation of more
 #           than sqrt(2) * 0.1 arcmin
 #   /eliptico: If set, consider an elliptical beam 5.
-#   /temperature: If set, give the result in the same Units of d.adcval 
+#   /temperature: If set, give the result in the same Units of d.adcval
 #              structure
 #
 # HISTORY
 #   First written by Guigue in the early days of the SST (1999.999999)
 #   Last written by Guigue, of course, 2003  :-)
-#   Added /temperature keyword.  
+#   Added /temperature keyword.
 #   Last version May/2011 (CASLEO)
 #----------------------------------------------------------------------------------
 #   Translated to python on 2020-04-26 at home because of the CoVid-19 quarrantine
@@ -169,12 +169,12 @@ class Flux(object):
         Bcoef = 2 * 0.138
         tp    = data.Data['time'].shape[0]
         Output = 'FluxDensity'
-        
+
 # Computed values
         tp = data.Data['time'].shape[0]
         if (temperature):
             Output = 'Temperature'
-            k212 = Bcoef 
+            k212 = Bcoef
             k405 = Bcoef
             res  = {'off'        : np.array(np.empty([tp],float)),
                     'el'         : np.array(np.empty([tp],float)),
@@ -186,7 +186,7 @@ class Flux(object):
                     'time'       : data.Data['time']             ,
                     'dtime'      : np.array(np.empty([tp],dtype='datetime64[us]'))
             }
-            
+
         else:
             k212 = (1.5/2)**2 * np.pi * self.Bpos['eta212']
             k405 = (1.5/2)**2 * np.pi * self.Bpos['eta405']
@@ -200,7 +200,7 @@ class Flux(object):
                     'time'    : data.Data['time']              ,
                     'dtime'   : np.array(np.empty([tp],dtype='datetime64[us]'))
             }
-        
+
         x42 = self.Bpos['off'][3] - self.Bpos['off'][1] # az(4) - az(2)
         x43 = self.Bpos['off'][3] - self.Bpos['off'][2] # az(4) - az(3)
 
@@ -232,7 +232,7 @@ class Flux(object):
                         jj = jj + 1
                         t0 = data.Data['adcval'][jj,1]
                         res['toz'][ii] = 0.0
-           
+
                     jj = ii
                     while (t1 <= 0.0):
                         jj = jj + 1
@@ -245,15 +245,15 @@ class Flux(object):
                         res['toz'][ii] = 0.0
 
             res['off'][ii], res['el'][ii] = self.calcular_xy(t0,t1,t2,x43,y43,x42,y42,b_a212,x_off,y_off,delta)
-            
+
             if (ii != 0):
 
                 if (np.abs(res['off'][ii] - res['off'][ii-1]) > limite):
-                    res['off'][ii]  = res['off'][ii-1] + limite * sign(res['off'][ii]-res['off'][ii-1])
+                    res['off'][ii]  = res['off'][ii-1] + limite * np.sign(res['off'][ii]-res['off'][ii-1])
                     res[ii].uloff = 0.0
 
                 if (np.abs(res['el'][ii] - res['el'][ii-1]) > limite):
-                    res['el'][ii] = res['el'][ii-1] + limite * sign(res['el'][ii]-res['el'][ii-1]) 
+                    res['el'][ii] = res['el'][ii-1] + limite * np.sign(res['el'][ii]-res['el'][ii-1])
                     res['ulel'][ii] = 0.0
 
             c212 = t0 * Bcoef / k212 * np.exp(b_a212 *( (res['off'][ii] - self.Bpos['off'][1])**2 + (res['el'][ii]  - self.Bpos['el'][1] )**2 ) )
@@ -265,14 +265,14 @@ class Flux(object):
                 c405 = t405 *  Bcoef / k405 * np.exp(b_a405*( (res['off'][ii] - self.Bpos['off'][4])**2 + (res['el'][ii]  - self.Bpos['el'][4] )**2 ) )
 
             if (temperature):
-                res['AntTemp212'][ii] = c212 
+                res['AntTemp212'][ii] = c212
                 res['AntTemp405'][ii] = c405
             else:
                 res['Flux212'][ii] = c212
                 res['Flux405'][ii] = c405
 
             res['dtime'][ii] = self.to_datetime(res['time'][ii])
-            
+
         self.MetaData.update({'Version': self.version(),
                               'Method' : 'Analytical',
                               'Output' : Output        }
@@ -280,18 +280,18 @@ class Flux(object):
 
         self.History.append('Solved the Multibeam System')
         self.MBSol = res
-        
+
         return
 
     def writeFITS(self,FITSfname):
 
         """
         writeFITS:
-             A method to write the SST MB Solution in FITS format as a binary table. 
-             The file has a primary header and a table or secondary header. 
+             A method to write the SST MB Solution in FITS format as a binary table.
+             The file has a primary header and a table or secondary header.
 
-             The system implements two headers. The primary header has general information, 
-             while the secondary header is specific for the table, including the units of the columns. 
+             The system implements two headers. The primary header has general information,
+             while the secondary header is specific for the table, including the units of the columns.
 
              Method taken from oRBD.py
 
@@ -302,11 +302,11 @@ class Flux(object):
              First written by Guigue @ Sampa - 2017-08-26
              Return value added on 2017-11-02
              Adapted to MB Solution on 2020-04-29
-        
+
         """
-        
+
         self.MetaData.update({'FITSfname':FITSfname})
-        
+
         _isodate_ = self.MetaData['ISODate']
         _hhmmss_  = [self.MBSol['dtime'][0].astype('str'),self.MBSol['dtime'][-1].astype('str')]
         _hdu_     = fits.PrimaryHDU()
@@ -328,16 +328,16 @@ class Flux(object):
             for iRBD in self.MetaData['RBDFileName']:_hdu_.header.append(('origfile',iRBD,'SST Raw Binary Data file'))
         else:
             _hdu_.header.append(('origfile',self.MetaData['RBDFileName'],'SST Raw Binary Data file'))
-            
+
         _hdu_.header.append(('frequen','212 GHz; 405 GHz',''))
 
         # About the Copyright
         _hdu_.header.append(('comment','COPYRIGHT. Grant of use.',''))
         _hdu_.header.append(('comment','These data are property of Universidade Presbiteriana Mackenzie.'))
         _hdu_.header.append(('comment','The Centro de Radio Astronomia e Astrofisica Mackenzie is reponsible'))
-        _hdu_.header.append(('comment','for their distribution. Grant of use permission is given for Academic ')) 
+        _hdu_.header.append(('comment','for their distribution. Grant of use permission is given for Academic '))
         _hdu_.header.append(('comment','purposes only.'))
-                            
+
         for i in range(len(self.History)):
             _hdu_.header.append(('history',self.History[i]))
 
@@ -379,7 +379,7 @@ class Flux(object):
                                      bzero  = 0       ,
                                      array  = self.MBSol['time'] // 10   ) # Convert husecs to milliseconds
                          ]
-        
+
         if (self.MetaData['Output'] == 'Temperature'):
             _fits_cols_.append( fits.Column(name    = 'TEMP212',
                                             format  = '1E'     ,
@@ -397,17 +397,17 @@ class Flux(object):
         if (self.MetaData['Output'] == 'FluxDensity'):
             _fits_cols_.append( fits.Column(name    = 'FLUX212',
                                             format  = '1E'     ,
-                                            unit    = ' K '    ,
+                                            unit    = 'SFU'    ,
                                             bscale  = 1.0      ,
                                             bzero   = 0.0      ,
                                             array   = self.MBSol['Flux212']))
             _fits_cols_.append( fits.Column(name    = 'FLUX405',
                                             format  = '1E'     ,
-                                            unit    = ' K '    ,
+                                            unit    = 'SFU'    ,
                                             bscale  = 1.0      ,
                                             bzero   = 0.0      ,
                                             array   = self.MBSol['Flux405']))
-        
+
         _coldefs_ = fits.ColDefs(_fits_cols_)
         _tbhdu_   = fits.BinTableHDU.from_columns(_coldefs_)
         # About the units
@@ -419,10 +419,5 @@ class Flux(object):
             return False
         else:
             _hduList_.writeto(self.MetaData['FITSfname'])
-            
+
         return True
-
-
-
-
-

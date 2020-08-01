@@ -12,7 +12,7 @@ import pdb
 #                                                              #
 #  Version Number. Change everytime the code is changed.       #
 #                                                              #
-_Version = '20200618T1703BRT'                                   #
+_Version = '20200702T1847BRT'                                   #
 #                                                              #
 ################################################################
 class RBD(object):
@@ -165,7 +165,7 @@ class RBD(object):
         return 'A Class representing SST Raw Binary Data'
 
     def extract(self,time_interval):
-        _temp_ = self.RBD()
+        _temp_ = oRBD.RBD()
         _temp_.header = self.header
         _temp_.MetaData = self.MetaData
         _temp_.History.append('Extracted Interval : ' + str(time_interval))
