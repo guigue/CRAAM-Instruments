@@ -5,18 +5,8 @@ from astropy.io import fits
 from utils import julday
 import collections
 
-####################################################
-#
-# Changed by @guiguesp
-#
-# Originally this function was called open()
-# But since it can be mistaken with python internal open()
-# routine, I changed to Popen()
-#
-# 2020-04-02 - (while listening "panelacos" from my window...)
-#
-##################################
-def Popen(path, name=None, path_to_xml=None):
+
+def openP(path, name=None, path_to_xml=None, ms=None):
 
     """
     Function to open a POEMAS file and return an `POEMAS` object.
@@ -31,12 +21,12 @@ def Popen(path, name=None, path_to_xml=None):
         Location of the POEMAS xml description files in the file system.
         If not defined it is assumed that the path is XMLTbles
         within the module's own directory.
-    
+
     Raises
     ------
     FileNotFoundError
         If the POEMAS file was not found.
-    
+
     ValueError
         If the path to the xml files is invalid.
     """
@@ -52,25 +42,29 @@ def Popen(path, name=None, path_to_xml=None):
         if not path.exists():
             raise FileNotFoundError("File not found: {}".format(path))
         name = path.name
-        
+
     if not path_to_xml.exists():
         raise ValueError("Invalid path to XML: {}".format(path_to_xml))
 
-    return POEMAS().from_file(path, name, path_to_xml)
+    return POEMAS().from_file(path, name, path_to_xml, ms)
 
 
 class POEMAS(object):
 
     def __init__(self):
         self.filename = ""
+        self.poemas_type = ""
         self.type = ""
         self.date = ""
         self.time = ""
         self.records = 0
         self.headerdata = np.empty((0))
         self.data = np.empty((0))
+        self.new_data = np.empty((0))
+        self.file_info = {}
+        self.data = np.empty((0))
         self.history = list()
-    
+
     def get_time_span(self):
 
         """
@@ -82,7 +76,7 @@ class POEMAS(object):
 
         return (julday.time(int(self.data["sec"][nonzero[0][0]])),
         julday.time(int(self.data["sec"][nonzero[0][-1]])))
-    
+
     @property
     def headercolumns(self):
         """Returns the names of the header columns in a tuple."""
@@ -94,7 +88,7 @@ class POEMAS(object):
         """Returns the names of the columns in a tuple."""
 
         return self.data.dtype.names
-    
+
     def get_date(self):
 
         """
@@ -109,7 +103,7 @@ class POEMAS(object):
 
         return date
 
-  
+
     def to_fits(self, name=None, output_path=None):
 
         """Writes the POEMAS data to a FITS file.
@@ -125,11 +119,11 @@ class POEMAS(object):
         ----------
         name : str, optional
             Name of the fits file.
-        
+
         output_path : str, pathlib.Path, optional
             Output path of the fits file. By default
             is where the script is being called from.
-        
+
         Raises
         ------
         FileExistsError
@@ -139,29 +133,29 @@ class POEMAS(object):
 
         t_start, t_end = self.get_time_span()
 
-        
+
         if not name:
             name = "poemas_{}_{}_{}T{}_level0.fits".format(self.type.lower(), self.date, t_start, t_end)
-            
+
         else:
             if not name.endswith(".fits"):
                 name += ".fits"
-        
-    
+
+
         name = Path(name)
 
         if not output_path:
             output_path = "."
 
         output_path = Path(output_path).expanduser()
-        
+
         if (output_path / name).exists():
             raise FileExistsError("File {} already exists.".format(str(name)))
 
         hdu = fits.PrimaryHDU()
         hdu.header.append(('origin', 'CRAAM/Universidade Presbiteriana Mackenzie', ''))
         hdu.header.append(('telescop', 'POEMAS - POlarization Emission of Millimeter Activity at the Sun', ''))
-        hdu.header.append(('observat', 'CASLEO', '')) 
+        hdu.header.append(('observat', 'CASLEO', ''))
         hdu.header.append(('station', 'Lat = -31.79897222, Lon = -69.29669444, Height = 2.491 km', ''))
         hdu.header.append(('tz', 'GMT-3', ''))
 
@@ -169,29 +163,30 @@ class POEMAS(object):
         hdu.header.append(('t_start', self.date + 'T' + t_start,''))
         hdu.header.append(('t_end', self.date + 'T' + t_end, ''))
         hdu.header.append(('data_typ', self.type, ''))
+
         if isinstance(self.filename, list) :
-            for fname in self.filename: hdu.header.append(('origfile', fname, 'POEMAS Raw Binary Data file')) 
+            for fname in self.filename: hdu.header.append(('origfile', fname, 'POEMAS Raw Binary Data file'))
         else:
-            hdu.header.append(('origfile',self.filename, 'POEMAS Raw Binary Data file')) 
-            
+            hdu.header.append(('origfile',self.filename, 'POEMAS Raw Binary Data file'))
+
         hdu.header.append(('frequen', '45 GHz ch=R,L; 90 GHz ch=R,L', ''))
 
         # About the Copyright
         hdu.header.append(('comment', 'COPYRIGHT. Grant of use.', ''))
         hdu.header.append(('comment', 'These data are property of Universidade Presbiteriana Mackenzie.'))
         hdu.header.append(('comment', 'The Centro de Radio Astronomia e Astrofisica Mackenzie is reponsible'))
-        hdu.header.append(('comment', 'for their distribution. Grant of use permission is given for Academic ')) 
+        hdu.header.append(('comment', 'for their distribution. Grant of use permission is given for Academic '))
         hdu.header.append(('comment', 'purposes only.'))
 
         #History
-        hdu.header.append(("history", "Converted to FITS level-0 with trk.py")) #modificar
+        hdu.header.append(("history", "Converted to FITS level-0 with poemas.py"))
 
         for hist in self.history:
             hdu.header.append(("history", hist))
 
         dscal = 1.0
         fits_cols = list()
-    
+
         for column, values in self._header.items():
 
             var_dim = str(values[0])
@@ -201,42 +196,17 @@ class POEMAS(object):
                 var_dim += "J"
             else:
                 var_dim += "E"
-            
-            header_array = np.repeat(self.headerdata, self.records * 100 , axis=0)
+
+            if self.poemas_type == "Subintegration":
+                header_array = np.repeat(self.headerdata, self.records * 100 , axis=0)
+            else:
+                header_array = np.repeat(self.headerdata, self.records, axis=0)
             fits_cols.append(fits.Column(name=column,
                                          format=var_dim,
                                          unit=values[2],
                                          bscale=dscal,
                                          bzero=offset,
                                          array= header_array[column]))
-       
-
-        dt_array = [ [], [], [], [], [], [], [] ]
-
-        for i in range (0,self.records):
-
-            for j in range (0,4):
-                
-                if(j == 0):
-                    
-                    msec = julday.msec(int(self.data[i][j]))
-                    msec_array = [n for n in range(msec, msec+(100*10),10)]
-                    dt_array[j].extend(msec_array)
-
-                elif(j>0 and j<=2):
-                    
-                    dt_array[j].extend([self.data[i][j]]*100)
-        
-                else:
-                    
-                    cont = 3
-                    for k in range (0,400):
-                        dt_array[cont].append(self.data[i][j][k])
-
-                        if cont >= 6:
-                            cont = 3
-                        else:
-                            cont+=1
 
         id = 0
         for column, values in self._newtblheader.items():
@@ -249,19 +219,20 @@ class POEMAS(object):
             else:
                 var_dim += "E"
 
-            if(id == 0):
+            if id == 0 and self.poemas_type == "Subintegration":
                 _name = 'msec'
             else:
                 _name = column
-            
+
+
             fits_cols.append(fits.Column(name=_name,
-                                                format=var_dim,
-                                                unit=values[2],
-                                                bscale=dscal,
-                                                bzero=offset,
-                                                array=dt_array[id]))
-            
+                                        format=var_dim,
+                                        unit=values[2],
+                                        bscale=dscal,
+                                        bzero=offset,
+                                        array=self.new_data[id]))
             id += 1
+
 
         tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(fits_cols))
 
@@ -284,8 +255,10 @@ class POEMAS(object):
             xml = xmlet.parse(path_to_xml / Path("POEMASDataFormatHead.xml")).getroot()
         elif xml_type == "tbl":
             xml = xmlet.parse(path_to_xml / Path("POEMASDataFormat.xml")).getroot()
-        elif xml_type == "new":
-            xml = xmlet.parse(path_to_xml / Path("POEMASNewDataFormat.xml")).getroot()
+        elif xml_type == "sub":
+            xml = xmlet.parse(path_to_xml / Path("POEMASSubintegrationDataFormat.xml")).getroot()
+        elif xml_type == "int":
+            xml = xmlet.parse(path_to_xml / Path("POEMASIntegrationDataFormat.xml")).getroot()
         else:
             raise ValueError("Invalid xml type: {}".format(xml_type))
 
@@ -306,8 +279,76 @@ class POEMAS(object):
 
         return header
 
+    def subintegration(self):
 
-    def from_file(self, path, name, path_to_xml):
+        dt_array = [ [], [], [], [], [], [], [] ]
+
+        for i in range (0,self.records):
+
+            for j in range (0,4):
+
+                if(j == 0):
+
+                    msec = julday.msec(int(self.data[i][j]))
+                    msec_array = [n for n in range(msec, msec+(100*10),10)]
+                    dt_array[j].extend(msec_array)
+
+                elif(j>0 and j<=2):
+
+                    dt_array[j].extend([self.data[i][j]]*100)
+
+                else:
+
+                    tb_array = self.data[i][j].reshape(100,4)
+                    tb_array = tb_array.transpose()
+
+                    cont = 3
+                    for tb in tb_array:
+                        dt_array[cont].extend(tb)
+
+                        cont+=1
+
+        self.new_data = np.array(dt_array)
+
+        return self
+
+    def integration(self):
+
+        dt_array = [ [], [], [],    [], [], [], [],    [], [], [], []]
+
+        for i in range (0,self.records):
+
+            for j in range (0,4):
+
+                if(j == 0):
+                    sec = julday.msec(int(self.data[i][j]))
+                    dt_array[j].append(sec)
+
+
+                elif(j>0 and j<=2):
+                    dt_array[j].extend([self.data[i][j]])
+
+                else:
+
+                    tb_array = self.data[i][j].reshape(100,4)
+                    tb_array = tb_array.transpose()
+
+                    cont = 3
+                    for tb in tb_array:
+                        mean = np.mean(tb)
+                        dt_array[cont].append(mean)
+                        cont+=1
+
+                    for tb in tb_array:
+                        std = np.std(tb)
+                        dt_array[cont].append(std)
+                        cont+=1
+
+        self.new_data = np.array(dt_array)
+
+        return self
+
+    def from_file(self, path, name, path_to_xml, ms):
 
         """Loads data from a file and returns an `POEMAS` object.
         Parameters
@@ -325,7 +366,7 @@ class POEMAS(object):
 
         ------
             TRK only
-        
+
         """
 
         self.filename = name
@@ -334,7 +375,7 @@ class POEMAS(object):
             raise ValueError("Invalid file type {}".format(self.filename))
         else:
             self.type = "TRK"
-        
+
         self._header = self.__find_header(path_to_xml,"head")
         hdt_list = list()
         for key, value in self._header.items():
@@ -346,38 +387,36 @@ class POEMAS(object):
         for key, value in self._tblheader.items():
             dt_list.append((key, value[1], value[0]))
 
-        self._newtblheader = self.__find_header(path_to_xml,"new")
-
-            
         if isinstance(path, bytes):
             self.headerdata = np.frombuffer(path, hdt_list, count = 1)
-            ##############################
-            #
-            # Changes introduced by @guiguesp
-            # Only version >= 1.18 of numpy has the offset keyword allowed
-            # Debian 10 has version 1.16.
-            # However, numpy.fromfile() accepts a filehandler object
-            # and the filehandler has a seek() method to move the pointer.
-            #
-            # 2020-04-02 (under social distancing)
-            #
-            ####################################
             fhandler = open(str(path),'rb')
             fhandler.seek(28,0)
-            self.data = np.fromfile(fhandler, dt_list)
-            fhandler.close()
-#            self.data = np.frombuffer(path, dt_list, offset=28)
+            self.data = np.frombuffer(path, dt_list)
         else:
             self.headerdata = np.fromfile(str(path), hdt_list, count = 1)
-            fhandler = open(str(path),'rb')
+            fhandler = open(str(path),"rb")
             fhandler.seek(28,0)
-            self.data = np.fromfile(fhandler, dt_list)
-            fhandler.close()
-            
-#            self.data = np.fromfile(str(path), dt_list, offset=28)
+            self.data = np.fromfile(str(path), dt_list)
 
-        
+
         self.date, self.time = self.get_date().split(" ")
         self.records = self.headerdata[0][1]
-        
-        return self 
+
+        if ms == 0 or ms == None:
+            self.poemas_type = "Subintegration"
+            self._newtblheader = self.__find_header(path_to_xml,"sub")
+            self.subintegration()
+        elif ms == 1:
+            self.poemas_type = "Integration"
+            self._newtblheader = self.__find_header(path_to_xml,"int")
+            self.integration()
+
+        t_start, t_end = self.get_time_span()
+
+        self.file_info.update({"Filename": name ,
+                               "Date": self.date,
+                               "Initial Time": t_start,
+                               "Final Time":  t_end,
+                               "POEMAStype": self.poemas_type})
+
+        return self

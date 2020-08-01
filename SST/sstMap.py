@@ -29,7 +29,7 @@ from CraamTools.AstroTools import julian
 from CraamTools.AstroTools import get_pb0
 from CraamTools.filters.RunningMean import rm1d
 
-_Version = '20200605T2355BRT'
+_Version = '20200801T1654BRT'
 
 #=======================================================================================
 #
@@ -487,6 +487,19 @@ class Map(object):
         #  displace a little bit the sun position.
         #
         #  @guiguesp - 2020-04-05
+        #
+        # A note on the Sun orientation. There is a funciton in sunpy.coordinates.sun
+        # to get the "orientation angle": sunpy.coordinates.sun.orientation(location,time)
+        # The orientation angle is the angle between the local zenith and the solar north
+        # measured eastward from local zenith. This angle takes into account the
+        # P angle and the parallactic angle. However, the value is very different.
+        #
+        # I leave both results in the MetaData. This version of sstMap rotates a map
+        # in 180-orientation angle, something that seems to be in accord with
+        # SDO/AIA images. But I have no clear explanation yet for what I'm doing.
+        # It should be checked!
+        #
+        # @guiguesp - 2020-08-01
         #______________________________________________________________________________
 
         if self.FLAGS['Rot_North'] :
@@ -495,34 +508,40 @@ class Map(object):
 
         dx = self.image.shape[1]//2-self.MetaData['Sun_Center_Matrix']['X0']
         dy = self.image.shape[1]//2-self.MetaData['Sun_Center_Matrix']['Y0']
+        angle = self.MetaData['Sun_Coordinates']['North_Orientation'].value - 180
 
         im = np.roll(np.roll(self.image, dx,1),dy,0)
-        im = rotate(im,self.MetaData['Sun_Coordinates']['P'].value,reshape=False)
-        im = rotate(im,self.MetaData['Parallactic_Angle'],reshape=False)
+#        im = rotate(im,-self.MetaData['Parallactic_Angle'],reshape=False)
+#        im = rotate(im,self.MetaData['Sun_Coordinates']['P'].value,reshape=False)
+        im = rotate(im,angle,reshape=False)
         im = np.roll(np.roll(im, -dx, 1), -dy, 0)
         self.image = im
 
         xoff = np.roll(np.roll(self.x_off,dx,1),dy,0)
-        xoff = rotate(xoff,self.MetaData['Sun_Coordinates']['P'].value,reshape=False)
-        xoff = rotate(xoff,self.MetaData['Parallactic_Angle'],reshape=False)
+#        xoff = rotate(xoff,-self.MetaData['Parallactic_Angle'],reshape=False)
+#        xoff = rotate(xoff,self.MetaData['Sun_Coordinates']['P'].value,reshape=False)
+        xoff = rotate(xoff,angle,reshape=False)
         xoff = np.roll(np.roll(xoff,dx,1), dy,0)
         self.x_off = xoff
 
         yoff = np.roll(np.roll(self.y_off,dx,1),dy,0)
-        yoff = rotate(yoff,self.MetaData['Sun_Coordinates']['P'].value,reshape=False)
-        yoff = rotate(yoff,self.MetaData['Parallactic_Angle'],reshape=False)
+#        yoff = rotate(yoff,-self.MetaData['Parallactic_Angle'],reshape=False)
+#        yoff = rotate(yoff,self.MetaData['Sun_Coordinates']['P'].value,reshape=False)
+        yoff = rotate(yoff,angle,reshape=False)
         yoff = np.roll(np.roll(yoff,dx,1), dy,0)
         self.y_off = yoff
 
         azi = np.roll(np.roll(self.azi,dx,1),dy,0)
-        azi = rotate(azi,self.MetaData['Sun_Coordinates']['P'].value,reshape=False)
-        azi = rotate(azi,self.MetaData['Parallactic_Angle'],reshape=False)
+#        azi = rotate(azi,-self.MetaData['Parallactic_Angle'],reshape=False)
+#        azi = rotate(azi,self.MetaData['Sun_Coordinates']['P'].value,reshape=False)
+        azi = rotate(azi,angle,reshape=False)
         azi = np.roll(np.roll(azi,-dx,1), -dy,0)
         self.azi = azi
 
         ele = np.roll(np.roll(self.ele,dx,1),dy,0)
-        ele = rotate(ele,self.MetaData['Sun_Coordinates']['P'].value,reshape=False)
-        ele = rotate(ele,self.MetaData['Parallactic_Angle'],reshape=False)
+#        ele = rotate(ele,-self.MetaData['Parallactic_Angle'],reshape=False)
+#        ele = rotate(ele,self.MetaData['Sun_Coordinates']['P'].value,reshape=False)
+        ele = rotate(ele,angle,reshape=False)
         ele = np.roll(np.roll(ele,-dx,1), -dy,0)
         self.ele = ele
 
@@ -583,8 +602,9 @@ class Sun(object):
         P  = Sun_Coordinates.sun.P(ctime)
         R_Sun = Sun_Coordinates.sun.angular_radius(ctime)
         Carrington  = Sun_Coordinates.sun.carrington_rotation_number(ctime)
+        North_Orientation = Sun_Coordinates.sun.orientation(cg,t)
 
-        return sun_radec,sun_altaz,L0,B0,P,R_Sun,Carrington
+        return sun_radec,sun_altaz,L0,B0,P,R_Sun,Carrington,North_Orientation
 
 ##########################################################################################################################
 
@@ -654,12 +674,13 @@ class sstMap(Map):
         self.MetaData.update({'ctime':self.Get_Time(d.MetaData,t_mean)})
         cg = CASLEO.Observatory_Coordinates()
         self.MetaData.update({'Observatory':cg})
-        radec,altaz,L0,B0,P,R_Sun,Carrington = self.Sun.Get_Sun_Coordinates(cg,self.MetaData['ctime'])
+        radec,altaz,L0,B0,P,R_Sun,Carrington,North_Orientation = self.Sun.Get_Sun_Coordinates(cg,self.MetaData['ctime'])
         self.MetaData.update({'Sun_Coordinates': {'RaDec':radec,
                                                   'AltAz': altaz,
                                                   'L0': L0, 'B0': B0,
                                                   'P':P, 'R_Sun': R_Sun,
-                                                  'Carrington': Carrington},
+                                                  'Carrington': Carrington,
+                                                  'North_Orientation':-North_Orientation},
                                 'Observatory': cg})
 
         self.MetaData.update({'Parallactic_Angle':self.Compute_Parallactic_Angle()})
