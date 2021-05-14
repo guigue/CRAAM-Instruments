@@ -89,6 +89,9 @@ class skydip():
                            self.Fit['Chan2']['tau'], self.Fit['Chan3']['tau'] ])
         stau212 = np.array([self.Fit['Chan0']['stau'], self.Fit['Chan1']['stau'],
                            self.Fit['Chan2']['stau'], self.Fit['Chan3']['stau'] ])
+        Toff    = np.array([self.Fit['Chan0']['Toff'], self.Fit['Chan1']['Toff'],
+                           self.Fit['Chan2']['Toff'], self.Fit['Chan3']['Toff'],
+                           self.Fit['Chan4']['Toff'], self.Fit['Chan5']['Toff']])
 
         mp212 = 0
         s212 = 0
