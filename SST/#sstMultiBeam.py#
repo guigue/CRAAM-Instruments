@@ -178,6 +178,7 @@ class Flux(object):
         
         Sradec0,Saltaz0,L0,B0,P,R_Sun,Carrington,North_Orientation = Get_Sun_Coordinates(self,cg,time0)
         
+        
 
         return
 
