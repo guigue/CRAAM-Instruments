@@ -1,0 +1,58 @@
+/*
+
+  Compile with:
+   gcc -g windowed_dft.c HATS_fft.c -lm -lfftw3 -o HATS_fft
+
+*/
+
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <semaphore.h>
+#include <string.h>
+#include <sys/time.h>
+#include <time.h>
+#include <complex.h>
+
+#include "HATS_fft.h"
+#include "windowed_dft.h"
+
+int num_windows = floor((SIGNAL_LENGTH - WINDOW_SIZE + 1) / STEPS);
+
+void fft(double * signal, unsigned long * husec, unsigned long * m_husec, double * fftCoeff)
+{
+  int i;
+  for(i = 0; i < num_windows; i++)
+    {
+      fftCoeff[i] = goertzel_amplitude(&signal[i*STEPS]     ,
+				       TARGET_FREQUENCY     ,
+				       WINDOW_SIZE          ,
+				       SAMPLING_FREQUENCY   ,
+				       FLATTOP) / (WINDOW_SIZE)      ;
+      m_husec[i] = husec[i*STEPS+WINDOW_SIZE/2];    
+    }
+}
+
+int main(){
+  FILE *fpi, *fpo;
+  int jwin,iline;
+  unsigned long int husec[SIGNAL_LENGTH], m_husec[num_windows];
+  double fftAmp[num_windows], adc[SIGNAL_LENGTH];
+  unsigned char buffer[100];
+  
+  if ( (NULL != (fpi = fopen(DATA_FILE,"r"))) & (NULL != (fpo = fopen(OUTPUT_FILE,"w"))) )
+    {
+      for (iline=0;iline<SIGNAL_LENGTH;iline++) fscanf(fpi,"%9ld  %6f",&husec[iline],&adc[iline]);
+      fclose(fpi);
+      
+      fft(adc, husec, m_husec, fftAmp) ;
+      
+      for (jwin=0;jwin<num_windows;jwin++) fprintf(fpo,"%6f %9ld\n",*fftAmp+jwin,m_husec[jwin]);
+      fclose(fpo);
+    }
+}
+

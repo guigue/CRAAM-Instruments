@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import pdb
 import scipy.interpolate as intl
 from scipy.ndimage import rotate
@@ -332,7 +333,7 @@ class Scans(object):
             smooth=10
         x,y       = Circle.get_limb(self.x_off,self.y_off,mo,smooth=smooth)
         par,cov   = Circle.fit(x,y)
-        self.limb = {'X0':par[0],'Y0':par[1],'R':par[2],'Cov':cov}
+        self.limb = {'off':x,'el':y,'X0':par[0],'Y0':par[1],'R':par[2],'Cov':cov}
         self.image = mo
         return
 
@@ -849,3 +850,82 @@ class sstMap(Map):
         except OSError as err:
             print("\n\nWrite Error: {0}\n\n".format(err))
             return False
+
+class MapOff(object):
+    
+    def __str__(self):
+        return 'A Class to determine the off pointing of SST maps.'
+
+    def __init__(self,d,ch=[0,1,2,3],direction='az'):
+        self.Version = '20210727T1606BRT'
+        self.Channel = {}
+
+        for ich in np.arange(len(ch)):
+            chname=str(ch[ich])
+            self.Channel.update({chname:Scans(d,ch[ich])})
+            self.Channel[chname].Select_Data(direction=direction)
+            self.Channel[chname].Extract_Scans(direction=direction)
+            self.Channel[chname].Limb_fit()
+
+        return
+        
+        
+    def plotFit(self,ch=0,save=False):
+
+        chname=str(ch)
+        if chname in self.Channel.keys():
+            angle = np.linspace(0,2*np.pi,500)
+            fig  = plt.figure()
+            fig.set_size_inches(w=6,h=6)
+            Bpos = [0.1,0.1,0.88,0.88]
+            ax   = fig.add_subplot(1,1,1, position=Bpos)
+            p1   = ax.plot(self.Channel[chname].limb['off'],self.Channel[chname].limb['el'],'.',color='red')
+            p2   = ax.plot(self.Channel[chname].limb['X0']+self.Channel[chname].limb['R']*np.cos(angle),
+                           self.Channel[chname].limb['Y0']+self.Channel[chname].limb['R']*np.sin(angle),
+                           color='black',linestyle='dashed')
+            p3   = ax.plot([self.Channel[chname].limb['X0'],self.Channel[chname].limb['X0']],
+                           [self.Channel[chname].limb['el'].min(),self.Channel[chname].limb['el'].max()],
+                           linestyle='dotted',color='black')
+            p3   = ax.plot([self.Channel[chname].limb['off'].min(),self.Channel[chname].limb['off'].max()],
+                           [self.Channel[chname].limb['Y0'],self.Channel[chname].limb['Y0']],
+                           linestyle='dotted',color='black')
+        
+            ax.set_aspect('equal')
+            ax.text(self.Channel[chname].limb['X0']-600,self.Channel[chname].limb['Y0']+100,
+                    'Map Center = (' + str(self.Channel[chname].limb['X0'])[:7]+' , ' + str(self.Channel[chname].limb['Y0'])[:7] + ')  arcsec')
+        
+            ax.text(self.Channel[chname].limb['X0']-600,self.Channel[chname].limb['Y0']+200,
+                    'Solar Radius = ' + str(self.Channel[chname].limb['R'])[:6] + ' +/- ' + str(np.sqrt(np.diag(self.Channel[chname].limb['Cov']))[2])[:4] + ' [arcsec]')
+
+            ax.set_title('Solar Limb : Channel '+chname)
+            ax.set_xlabel('Off [arcsec]')
+            ax.set_ylabel('El [arcsec]')
+
+            if save:
+                fname = 'SST-Limb_Fit_Channel_'+chname+'.pdf'
+                plt.savefig(fname, dpi=None, facecolor='w', edgecolor='w',
+                            orientation='portrait', papertype=None, format='pdf',
+                            transparent=False, bbox_inches=None, pad_inches=0.1,
+                            frameon=None, metadata=None)
+
+        else:
+            print("\n\n {0:d} is not a valid channel. \n\n".format(ch))
+
+            
+        return
+
+    def printFit(self,ch=[0]):
+
+        for ich in np.arange(len(ch)):
+            chname = str(ch[ich])
+            if chname in self.Channel.keys():
+                print("\n\n        Channel {0:s}\n".format(chname))
+                print(" off Center = {0:6.2f} , {1:6.2f}  [arcmin]\n".format(self.Channel[chname].limb['X0']/60,self.Channel[chname].limb['Y0']/60))
+                print(" Radius = {0:6.2f} +/- {1:5.2f} [arcsec]\n\n".format(self.Channel[chname].limb['R'],np.sqrt(np.diag(self.Channel[chname].limb['Cov']))[2]))
+
+            else:
+                print("\n\n {0:s} is not a valid channel. \n\n".format(chname))
+
+            
+        return
+        

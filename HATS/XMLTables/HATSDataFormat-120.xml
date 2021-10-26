@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<HATSDataFormat
+    DataType="Data" 
+    InitialDate="2021-10-25" 
+    FinalDate="2100-01-01"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="HATSDataDescription.xsd">
+
+    <HATSDataVariable VarName="Sample">
+        <VarName>sample</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:unsignedInt</VarType>
+        <VarUnit>none</VarUnit>
+    </HATSDataVariable>
+
+    <HATSDataVariable VarName="Timestamp_sec">
+        <VarName>sec</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:unsignedInt</VarType>
+        <VarUnit>none</VarUnit>
+    </HATSDataVariable>
+
+    <HATSDataVariable VarName="Timestamp_ms">
+        <VarName>ms</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:unsignedShort</VarType>
+        <VarUnit>none</VarUnit>
+    </HATSDataVariable>
+
+    <HATSDataVariable VarName="husec">
+        <VarName>husec</VarName>
+                <VarLength>1</VarLength>
+        <VarType>xs:unsignedLong</VarType>
+        <VarUnit>none</VarUnit>
+    </HATSDataVariable>
+
+<HATSDataVariable VarName="rawGolay">
+        <VarName>adcu</VarName>
+                <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>none</VarUnit>
+    </HATSDataVariable>
+
+<HATSDataVariable VarName="rawChopper">
+        <VarName>chopper</VarName>
+                <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>none</VarUnit>
+    </HATSDataVariable>
+    
+<HATSDataVariable VarName="rawTemperature_1">
+        <VarName>power_supp</VarName>
+                <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>none</VarUnit>
+    </HATSDataVariable>
+
+<HATSDataVariable VarName="rawTemperature_2">
+        <VarName>power_supp</VarName>
+                <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>none</VarUnit>
+    </HATSDataVariable>
+
+<HATSDataVariable VarName="rawTemperature_3">
+        <VarName>power_supp</VarName>
+                <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>none</VarUnit>
+    </HATSDataVariable>
+
+</HATSDataFormat>

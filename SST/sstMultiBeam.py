@@ -11,10 +11,8 @@ from astropy.coordinates import get_body_barycentric, get_body, SkyCoord
 from astropy import units as u
 from astropy.coordinates import AltAz
 from astropy.utils import iers
-from sunpy import coordinates as Sun_Coordinates, frames
 
 import CASLEO
-
 
 ##################################
 Version = '20200702T1847BRT'     #
@@ -82,7 +80,7 @@ class Flux(object):
             _fd_.close()
         else:
             print ('File ',self.MetaData['BPos_filename'],' not found')
-            print ('Exiti...\n\n')
+            print ('Exit...\n\n')
 
         return
 
@@ -130,41 +128,12 @@ class Flux(object):
 
         return dt.datetime(year,month,day,hours,minutes,seconds_int,useconds)
 
-
-    def Get_Sun_Coordinates(self,cg,ctime):
-        #
-        #  Get_Sun_Coordinates
-        #
-        #     This method obtains the Sun Coordinates both in (Ra,Dec) and (Alt, Az)
-        #     While astropy may use very accurate calculations and corrections from
-        #     IERS, for some reason it cannot download the data. So, I decided to
-        #     work off-line with a lesser precision, although enoug for us.
-        #
-        #
-        #  @guiguesp - 2020-04-05
-        #            - 2020-05-30 : Now using sunpy 1.1
-        #_____________________________________________________________________________
-
-        t = Time(ctime)
-
-        with solar_system_ephemeris.set('builtin'):
-            sun_radec=get_body('sun',t,cg)
-
-        aa = AltAz(location=cg,obstime=t)
-        sun_altaz = sun_radec.transform_to(aa)
-
-        L0 = Sun_Coordinates.sun.L0(ctime)
-        B0 = Sun_Coordinates.sun.B0(ctime)
-        P  = Sun_Coordinates.sun.P(ctime)
-        R_Sun = Sun_Coordinates.sun.angular_radius(ctime)
-        Carrington  = Sun_Coordinates.sun.carrington_rotation_number(ctime)
-        North_Orientation = Sun_Coordinates.sun.orientation(cg,t)
-
-        return sun_radec,sun_altaz,L0,B0,P,R_Sun,Carrington,North_Orientation
-
         
     def sst2xy(self,eqOff,Off_hour,pntb=5,quiet=True):
 
+        from sstMap import Sun
+        sun = Sun()
+        
         cg = CASLEO.Observatory_Coordinates()
         
         if (pntb < 1) | (pntb > 6):
@@ -176,11 +145,40 @@ class Flux(object):
 
         time0=dt.datetime(self.MBSol['dtime'].year,self.MBSol['dtime'].month,self.MBSol['dtime'].day,Off_hour)
         
-        Sradec0,Saltaz0,L0,B0,P,R_Sun,Carrington,North_Orientation = Get_Sun_Coordinates(self,cg,time0)
+        Sradec0,Saltaz0,L0,B0,P,R_Sun,Carrington,North_Orientation = sun.Get_Sun_Coordinates(cg,time0)
+        self.MetaData.update({'Sun_Coordinates': {'RaDec':radec,
+                                                  'AltAz': altaz,
+                                                  'L0': L0, 'B0': B0,
+                                                  'P':P, 'R_Sun': R_Sun,
+                                                  'Carrington': Carrington,
+                                                  'North_Orientation':-North_Orientation},
+                              'Observatory': cg})
         
+        self.MetaData.update({'Parallactic_Angle':self.Compute_Parallactic_Angle()})
+        daz = self.MBSol['off'] - self.Bpos['off'][pntch]
+        del = self.MBSol['el']  - self.Bpos['el'][pntch]
+        dalpha = daz * np.cos(self.MetaData['Parallactic_Angle']) - del * np.sin(self.MetaData['Parallactic_Angle'])
+        ddec   = daz * np.sin(self.MetaData['Parallactic_Angle']) + del * np.cos(self.MetaData['Parallactic_Angle'])
 
+        self.MBSol.update({'ra':self.MetaData['RaDec'][0]+eqOff[0]+dalpha})
+        self.MBSol.update({'dec':self.MetaData['RaDec'][1]+eqOff[1]+ddec})
+        
         return
 
+    def Compute_Parallactic_Angle(self):
+    ########################
+    #  Compute the parallactic angle.
+    #
+    #    Formula taken from A. Guyonnet.
+    #    eta = sin(ha) / ( cos(dec) * tan(latitude) - sin(dec) * cos(ha) )
+    #
+    #######################
+
+        latitude = self.MetaData['Observatory'].lat.rad
+        ha = np.radians(self.MetaData['Sun_Coordinates']['RaDec'].ra.hour)
+        dec = self.MetaData['Sun_Coordinates']['RaDec'].dec.rad
+        parallactic_angle = np.degrees(np.arctan(np.sin(ha) / (np.cos(dec) * np.tan(latitude) - np.sin(dec) * np.cos(ha))))
+        return parallactic_angle
 
 ######################################################################################    
     def Analytic_Method(self, data, limite=1000, eliptic=False, temperature=False):
