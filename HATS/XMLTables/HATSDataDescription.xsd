@@ -8,6 +8,7 @@
         </xs:sequence>
         <xs:attribute name="DataType" type="xs:string"/>
         <xs:attribute name="InitialDate" type="xs:date"/>
+        <xs:attribute name="FinalDate" type="xs:date"/>
     </xs:complexType>
     <xs:complexType name="HATSDataVariableType">
         <xs:sequence>
@@ -15,6 +16,10 @@
             <xs:element name="VarLength" type="xs:integer"/>
             <xs:element name="VarType" type="xs:string"/>
             <xs:element name="VarUnit" type="xs:string"/>
+            <xs:element name="VarOrigin" type="xs:string"/>
+            <xs:element name="Convert" type="xs:string"/>
+            <xs:element name="ConvOrd" type="xs:float"/>
+            <xs:element name="ConvSlope" type="xs:float"/>
         </xs:sequence>
         <xs:attribute name="VarName" type="xs:string"/>
     </xs:complexType>

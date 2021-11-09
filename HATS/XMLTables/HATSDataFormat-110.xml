@@ -12,6 +12,7 @@
         <VarLength>1</VarLength>
         <VarType>xs:unsignedInt</VarType>
         <VarUnit>none</VarUnit>
+        <VarOrigin>sam4e</VarOrigin>
     </HATSDataVariable>
 
     <HATSDataVariable VarName="Timestamp_sec">
@@ -19,6 +20,7 @@
         <VarLength>1</VarLength>
         <VarType>xs:unsignedInt</VarType>
         <VarUnit>none</VarUnit>
+        <VarOrigin>sam4e</VarOrigin>
     </HATSDataVariable>
 
     <HATSDataVariable VarName="Timestamp_ms">
@@ -26,20 +28,23 @@
         <VarLength>1</VarLength>
         <VarType>xs:unsignedShort</VarType>
         <VarUnit>none</VarUnit>
+        <VarOrigin>sam4e</VarOrigin>
     </HATSDataVariable>
 
     <HATSDataVariable VarName="husec">
         <VarName>husec</VarName>
-                <VarLength>1</VarLength>
+        <VarLength>1</VarLength>
         <VarType>xs:unsignedLong</VarType>
         <VarUnit>none</VarUnit>
+        <VarOrigin>sam4e</VarOrigin>
     </HATSDataVariable>
 
 <HATSDataVariable VarName="rawGolay">
         <VarName>adcu</VarName>
-                <VarLength>1</VarLength>
+        <VarLength>1</VarLength>
         <VarType>xs:int</VarType>
         <VarUnit>none</VarUnit>
+        <VarOrigin>ad7770</VarOrigin>
     </HATSDataVariable>
 
 <HATSDataVariable VarName="rawPS">
@@ -47,6 +52,7 @@
                 <VarLength>1</VarLength>
         <VarType>xs:int</VarType>
         <VarUnit>none</VarUnit>
+        <VarOrigin>ad7770</VarOrigin>
     </HATSDataVariable>
 
 

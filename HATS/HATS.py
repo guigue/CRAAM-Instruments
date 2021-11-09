@@ -6,7 +6,7 @@ from astropy.io import fits
 import collections
 import pdb
 
-__version__       = "2021-10-26T1100BRT"
+__version__       = "2021-11-09T2045BRT"
 __SIGNAL_LENGTH__ =  8192
 __DATA_FILE__     = "hats_data_rbd.bin"
 __HUSEC_FILE__    = "hats_husec.bin"
@@ -66,7 +66,7 @@ class rbd(object):
         if self.MetaData['PathToXML'][-1] != '/' :
             self.MetaData['PathToXML'] = self.MetaData['PathToXML'] + '/'
             
-            self.MetaData['Firmware_Version'] = FirmwareVersion
+        self.MetaData['Firmware_Version'] = FirmwareVersion
 
     def __str__(self):
         return 'A Class representing HATS Raw Binary Data'
@@ -94,9 +94,13 @@ class rbd(object):
         self._tblheader = collections.OrderedDict()
         for child in xml:
             var_name = child[0].text
-            var_dim = int(child[1].text)
+            var_dim  = int(child[1].text)
             var_type = child[2].text
             var_unit = child[3].text
+            var_orig = child[4].text
+            var_conv = child[5].text
+            var_ord  = float(child[6].text)
+            var_slop = float(child[7].text)
 
             if var_type == "xs:int":
                 np_type = np.int32
@@ -107,48 +111,33 @@ class rbd(object):
             if var_type == "xs:unsignedLong":
                 np_type = np.uint64
 
-            self._tblheader.update({var_name:[var_dim, np_type, var_unit]})
-        
+            self._tblheader.update({var_name:[var_dim, np_type, var_unit,var_orig,var_conv,var_ord,var_slop]})
+
         dt_list = list()
         for key, value in self._tblheader.items():
             dt_list.append((key, value[1], value[0]))
         
         fhandler = open(fullpathname,'rb')
-        self.Data = np.fromfile(fhandler, dt_list)
+        self.rData = np.fromfile(fhandler, dt_list)     # raw Data, no calibration
 
-        ########################################################################################
-        #                  Must be changed for firmware version 1.20                           #
-        ########################################################################################
-        
-        # Read the ADCs. They come in a 4 bytes integer, however, only the last 2 are significant.
-        # The sign is in the second byte, the first bit.
-        adcu = self.Data['adcu']&0x00FFFFFF             # Get the last 2 bytes
-        negative = (self.Data['adcu']&0x0800000)>0      # Get the sign bit
-        adcu[negative] = adcu[negative]-0x1000000       # Subtract the 'excess' to have negative numbers.
-        self.Data['adcu'] = adcu                        #
+        # Number convertion for data coming from the Analog Devices A/D board.
+        # They come in a 4 bytes integer, however, only the last 3 are significant.
+        # The sign is in the third byte, the first bit.
+        for key,val in self._tblheader.items():
+            if (val[3] == "ad7770"):
+                adcu = self.rData[key]&0x00FFFFFF             # Get the last 2 bytes
+                negative = (self.rData[key]&0x0800000)>0      # Get the sign bit
+                adcu[negative] = adcu[negative]-0x1000000    # Subtract the 'excess' to have negative numbers.
+                self.rData[key] = adcu
 
-        # Same precedure as above
-        adcu = self.Data['chopper']&0x00FFFFFF
-        negative = (self.Data['chopper']&0x0800000)>0
-        adcu[negative] = adcu[negative]-0x1000000
-        self.Data['chopper'] = adcu
+        # Calibrated Data. 
+        self.cData = {}
+        for key,val in self._tblheader.items():
+            if (val[4] == "yes"):                                            # Data must be calibrated
+                self.cData.update({key:np.zeros(self.rData[key].shape[0])})  # Create room for the data
+                self.cData[key] = self.rData[key] * val[6] + val[5]          # apply a linear conversion
 
-        if (self.MetaData['Firmware_Version'] == "1.20"):
-            adcu = self.Data['Temperature_1']&0x00FFFFFF
-            negative = (self.Data['Temperature_1']&0x0800000)>0
-            adcu[negative] = adcu[negative]-0x1000000
-            self.Data['Temperature_1'] = adcu
-
-            adcu = self.Data['Temperature_2']&0x00FFFFFF
-            negative = (self.Data['Temperature_2']&0x0800000)>0
-            adcu[negative] = adcu[negative]-0x1000000
-            self.Data['Temperature_2'] = adcu
-
-            adcu = self.Data['Temperature_3']&0x00FFFFFF
-            negative = (self.Data['Temperature_3']&0x0800000)>0
-            adcu[negative] = adcu[negative]-0x1000000
-            self.Data['Temperature_3'] = adcu
-
+                                   
         return
 
     def husec2dt(self,husec):
@@ -177,18 +166,18 @@ class rbd(object):
 
         """
 
-        dt_time = list(map(self.husec2dt,self.Data['husec']))
+        dt_time = list(map(self.husec2dt,self.rData['husec']))
         return np.asarray(dt_time)
 
     def getFFT(self):
 
-        Nchunks = self.Data['husec'].shape[0] // __SIGNAL_LENGTH__
-        Lchunk = self.Data['husec'].shape[0] % __SIGNAL_LENGTH__
+        Nchunks = self.rData['husec'].shape[0] // __SIGNAL_LENGTH__
+        Lchunk = self.rData['husec'].shape[0] % __SIGNAL_LENGTH__
         amp = []
         hus = []
         
-        self.Data['husec'].tofile(__HUSEC_FILE__)
-        self.Data['adcu'].tofile(__DATA_FILE__)
+        self.rData['husec'].tofile(__HUSEC_FILE__)
+        self.rData['adcu'].tofile(__DATA_FILE__)
         os.spawnl(os.P_WAIT,'./HATS_fft','HATS_fft')
         
         husec  = np.fromfile(__HUSEC_FILE__ , dtype=np.uint64  , count=-1)

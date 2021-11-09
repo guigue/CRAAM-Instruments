@@ -156,9 +156,9 @@ class Flux(object):
         
         self.MetaData.update({'Parallactic_Angle':self.Compute_Parallactic_Angle()})
         daz = self.MBSol['off'] - self.Bpos['off'][pntch]
-        del = self.MBSol['el']  - self.Bpos['el'][pntch]
-        dalpha = daz * np.cos(self.MetaData['Parallactic_Angle']) - del * np.sin(self.MetaData['Parallactic_Angle'])
-        ddec   = daz * np.sin(self.MetaData['Parallactic_Angle']) + del * np.cos(self.MetaData['Parallactic_Angle'])
+        d_el = self.MBSol['el']  - self.Bpos['el'][pntch]
+        dalpha = daz * np.cos(self.MetaData['Parallactic_Angle']) - d_el * np.sin(self.MetaData['Parallactic_Angle'])
+        ddec   = daz * np.sin(self.MetaData['Parallactic_Angle']) + d_el * np.cos(self.MetaData['Parallactic_Angle'])
 
         self.MBSol.update({'ra':self.MetaData['RaDec'][0]+eqOff[0]+dalpha})
         self.MBSol.update({'dec':self.MetaData['RaDec'][1]+eqOff[1]+ddec})

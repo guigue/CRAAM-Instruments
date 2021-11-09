@@ -12,6 +12,10 @@
         <VarLength>1</VarLength>
         <VarType>xs:unsignedInt</VarType>
         <VarUnit>none</VarUnit>
+        <VarOrigin>sam4e</VarOrigin>
+        <Convert>no</Convert>
+        <ConvOrd>0.0</ConvOrd>
+        <ConvSlope>1.0</ConvSlope>
     </HATSDataVariable>
 
     <HATSDataVariable VarName="Timestamp_sec">
@@ -19,6 +23,10 @@
         <VarLength>1</VarLength>
         <VarType>xs:unsignedInt</VarType>
         <VarUnit>none</VarUnit>
+        <VarOrigin>sam4e</VarOrigin>
+        <Convert>no</Convert>
+        <ConvOrd>0.0</ConvOrd>
+        <ConvSlope>1.0</ConvSlope>
     </HATSDataVariable>
 
     <HATSDataVariable VarName="Timestamp_ms">
@@ -26,20 +34,32 @@
         <VarLength>1</VarLength>
         <VarType>xs:unsignedShort</VarType>
         <VarUnit>none</VarUnit>
+        <VarOrigin>sam4e</VarOrigin>
+        <Convert>no</Convert>
+        <ConvOrd>0.0</ConvOrd>
+        <ConvSlope>1.0</ConvSlope>
     </HATSDataVariable>
 
-    <HATSDataVariable VarName="husec">
+    <HATSDataVariable VarName="Timestamp_husec">
         <VarName>husec</VarName>
                 <VarLength>1</VarLength>
         <VarType>xs:unsignedLong</VarType>
         <VarUnit>none</VarUnit>
+        <VarOrigin>sam4e</VarOrigin>
+        <Convert>no</Convert>
+        <ConvOrd>0.0</ConvOrd>
+        <ConvSlope>1.0</ConvSlope>
     </HATSDataVariable>
 
 <HATSDataVariable VarName="rawGolay">
-        <VarName>adcu</VarName>
+        <VarName>golay</VarName>
                 <VarLength>1</VarLength>
         <VarType>xs:int</VarType>
         <VarUnit>none</VarUnit>
+        <VarOrigin>ad7770</VarOrigin>
+        <Convert>yes</Convert>
+        <ConvOrd>0.0</ConvOrd>
+        <ConvSlope>1.0</ConvSlope>
     </HATSDataVariable>
 
 <HATSDataVariable VarName="rawChopper">
@@ -47,27 +67,43 @@
                 <VarLength>1</VarLength>
         <VarType>xs:int</VarType>
         <VarUnit>none</VarUnit>
+        <VarOrigin>ad7770</VarOrigin>
+        <Convert>yes</Convert>
+        <ConvOrd>0.0</ConvOrd>
+        <ConvSlope>1.0</ConvSlope>
     </HATSDataVariable>
     
-<HATSDataVariable VarName="rawTemperature_1">
-        <VarName>power_supp</VarName>
+<HATSDataVariable VarName="rawTemp_HICS">
+        <VarName>temp_hics</VarName>
                 <VarLength>1</VarLength>
         <VarType>xs:int</VarType>
         <VarUnit>none</VarUnit>
+        <VarOrigin>ad7770</VarOrigin>
+        <Convert>yes</Convert>
+        <ConvOrd>0.05</ConvOrd>
+        <ConvSlope>0.000017881394498431353</ConvSlope>
     </HATSDataVariable>
 
-<HATSDataVariable VarName="rawTemperature_2">
-        <VarName>power_supp</VarName>
+<HATSDataVariable VarName="rawTemp_ENV">
+        <VarName>temp_env</VarName>
                 <VarLength>1</VarLength>
         <VarType>xs:int</VarType>
         <VarUnit>none</VarUnit>
+        <VarOrigin>ad7770</VarOrigin>
+        <Convert>yes</Convert>
+        <ConvOrd>0.05</ConvOrd>
+        <ConvSlope>0.000017881394498431353</ConvSlope>
     </HATSDataVariable>
 
-<HATSDataVariable VarName="rawTemperature_3">
-        <VarName>power_supp</VarName>
+<HATSDataVariable VarName="rawTemp_GOLAY">
+        <VarName>temp_golay</VarName>
                 <VarLength>1</VarLength>
         <VarType>xs:int</VarType>
         <VarUnit>none</VarUnit>
+        <VarOrigin>ad7770</VarOrigin>
+        <Convert>yes</Convert>
+        <ConvOrd>0.05</ConvOrd>
+        <ConvSlope>0.000017881394498431353</ConvSlope>
     </HATSDataVariable>
 
 </HATSDataFormat>
