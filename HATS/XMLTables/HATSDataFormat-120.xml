@@ -4,6 +4,7 @@
     DataType="Data" 
     InitialDate="2021-10-25" 
     FinalDate="2100-01-01"
+    FFTProgram="/monalisa/guigue/Programming/CRAAM-Instruments/HATS/HATS_fft"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="HATSDataDescription.xsd">
 

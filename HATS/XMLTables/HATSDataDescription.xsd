@@ -9,6 +9,7 @@
         <xs:attribute name="DataType" type="xs:string"/>
         <xs:attribute name="InitialDate" type="xs:date"/>
         <xs:attribute name="FinalDate" type="xs:date"/>
+        <xs:attribute name="FFTProgram" type="xs:string"/>
     </xs:complexType>
     <xs:complexType name="HATSDataVariableType">
         <xs:sequence>

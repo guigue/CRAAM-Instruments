@@ -6,7 +6,7 @@ from astropy.io import fits
 import collections
 import pdb
 
-__version__       = "2021-11-09T2045BRT"
+__version__       = "2021-11-10T1301BRT"
 __SIGNAL_LENGTH__ =  8192
 __DATA_FILE__     = "hats_data_rbd.bin"
 __HUSEC_FILE__    = "hats_husec.bin"
@@ -16,9 +16,10 @@ __HUSEC_FILE__    = "hats_husec.bin"
 # HATS: A python class to read and deconvolve HATS RBD data.
 #
 # Usage:
+#   > export HATSXMLTABLES=/my/directory/with/HATS/XMLTABLES
 #   >>> import HATS
-#   >>> h=HATS.rbd(PathToXML='./XMLTables')        # Create the Object. PathToXML should point where XML shema files are
-#   >>> h.from_file('hats-2021-08-26T1800.rbd')    # Import data from RBD file
+#   >>> h=HATS.rbd()                               # Create the Object. Data is supposed to be in the same directory.
+#   >>> h.from_file('hats-2021-08-26T1800.rbd')    # Import data from RBD file.
 #   >>> h.getFFT()                                 # Deconvolve the data.
 #
 # Data Structures:
@@ -28,13 +29,24 @@ __HUSEC_FILE__    = "hats_husec.bin"
 #                               File_Name : string with the RBD name file
 #                               Date      : ISO data date
 #                               Hour      : Data Hour (UTC)
-#  Data: A numpy array with
+#                               FFTProgram: full path to FFT module (C)
+#  rData: A numpy array with raw data
 #                               sample    : sample number (np.uint32 )
 #                               sec       : seconds from 1970-01-01, Unix time (np.uint32)
 #                               ms        : milliseconds of the seconds (np.uint16)
 #                               husec     : hundred of microsends since 0 UT, as in SST (np.uint64)
-#                               adcu      : Golay output in ADC units (np.uint32)
-#                               power_supp: Power Supply in ADC units (np.uint32)
+#                               golay     : Golay output in ADC units (np.uint32)
+#                               chopper   : Power Supply in ADC units (np.uint32)
+#                               temp_env
+#                               temp_hics
+#                               temp_golay
+#
+# cData: A numpy array with converted data
+#                               golay     : Golay output in ADC units (np.uint32)
+#                               chopper   : Power Supply in ADC units (np.uint32)
+#                               temp_env
+#                               temp_hics
+#                               temp_golay
 #
 # Deconv: a Dictionary with
 #                               amplitude : FFT amplitude in ADC units (np.float64)
@@ -42,31 +54,41 @@ __HUSEC_FILE__    = "hats_husec.bin"
 #                               time      : time of 'amplitude' in datetime()
 #
 # Author: @guiguesp - São Paulo - returning to presencial classes - 2021-10-12
+#                     Added more descriptions in XML file
+#                     Simplified the readout of the Analog Devices variables
 #
 ############################################################################
 
 class rbd(object):
 
-    def __init__(self,FirmwareVersion='1.10',PathToXML='',InputPath='./'):
-        self.MetaData = {}
-        self.Data     = np.empty((0))
+    def __init__(self,PathToXML='',InputPath='./'):
 
-        self.MetaData.update({'InputPath':InputPath})
-        
         # PathToXML should point to tha directory where the XML tables are copied
         # When not defined, look at the environment
         if (isinstance(PathToXML,str) and len(PathToXML) == 0):
             if ('HATSXMLPATH' in os.environ.keys()):
-                self.MetaData.update({'PathToXML' :os.environ['HATSXMLPATH']})
+                PathToXML=os.environ['HATSXMLPATH']
             else:
-                self.MetaData.update({'PathToXML':'./'})
+                PathToXML='.'
         else:
-            self.MetaData.update({'PathToXML':PathToXML})
+            PathToXML=PathToXML
 
-        if self.MetaData['PathToXML'][-1] != '/' :
-            self.MetaData['PathToXML'] = self.MetaData['PathToXML'] + '/'
-            
-        self.MetaData['Firmware_Version'] = FirmwareVersion
+        if PathToXML[-1] != '/' :
+            PathToXML=PathToXML+'/'
+        
+        if (os.path.exists(PathToXML)):
+            self.MetaData = {"XMLDataDescriptionFile":PathToXML+"HATSDataFormat.xml"}
+        else:
+            print("\n\n No XML directory {0:s} found \nExit\n\n".format(PathToXML))
+            return            
+
+
+        if (os.path.exists(InputPath)):
+            self.MetaData.update({'InputPath':InputPath})
+            self.Data     = np.empty((0))                        
+        else:
+            print("\n\n No data directory {0:s} found \nExit\n\n".format(InputPath))
+            return            
 
     def __str__(self):
         return 'A Class representing HATS Raw Binary Data'
@@ -89,9 +111,17 @@ class rbd(object):
             self.MetaData.update({'Date':fname[5:15]})
             self.MetaData.update({'Hour':fname[16:18]})
 
-        xml = xmlet.parse(self.MetaData['PathToXML'] / Path("HATSDataFormat.xml")).getroot()
+        if (os.path.exists(self.MetaData['XMLDataDescriptionFile'])):            
+            xml = xmlet.parse(self.MetaData['XMLDataDescriptionFile']).getroot()
+        else:
+            print("\n\n No XML Data Description file {0:s} found \nExit\n\n".format(self.MetaData['XMLDataDescriptionFile']))
+            return            
+
+        self.MetaData.update({'FFTProgram':xml.attrib['FFTProgram']})
+        
         self._tblheader = dict()
         self._tblheader = collections.OrderedDict()
+
         for child in xml:
             var_name = child[0].text
             var_dim  = int(child[1].text)
@@ -177,8 +207,14 @@ class rbd(object):
         hus = []
         
         self.rData['husec'].tofile(__HUSEC_FILE__)
-        self.rData['adcu'].tofile(__DATA_FILE__)
-        os.spawnl(os.P_WAIT,'./HATS_fft','HATS_fft')
+        self.rData['golay'].tofile(__DATA_FILE__)
+
+        if os.path.exists(self.MetaData['FFTProgram']):
+            os.spawnl(os.P_WAIT,self.MetaData['FFTProgram'],os.path.basename(self.MetaData['FFTProgram']) )
+        else:
+            print("\n\n No {0:s}  module found in {1:s}\nExit\n\n".format(os.path.basename(self.MetaData['FFTProgram']),
+                                                                          os.path.dirname(self.MetaData['FFTProgram'])))
+            return            
         
         husec  = np.fromfile(__HUSEC_FILE__ , dtype=np.uint64  , count=-1)
         fftAmp = np.fromfile(__DATA_FILE__  , dtype=np.float64 , count=-1)
