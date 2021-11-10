@@ -14,3 +14,4 @@ def Observatory_Coordinates():
     lat = -31.79897222 * u.degree
     height = 2.491e+03 * u.m
     return EarthLocation.from_geodetic(lon,lat,height)
+
