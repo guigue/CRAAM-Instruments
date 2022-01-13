@@ -7,7 +7,7 @@ import collections
 import warnings
 import pdb
 
-__version__       = "2021-12-17T1216BRT"
+__version__       = "2021-12-16T2330BRT"
 __DATA_FILE__     = "hats_data_rbd.bin"
 __HUSEC_FILE__    = "hats_husec.bin"
 __RECORD_SIZE__   = 38
@@ -324,16 +324,16 @@ class rbd(object):
         dt_time = list(map(self.husec2dt,self.rData['husec']))
         return np.asarray(dt_time)
 
-    def getFFT(self,steps=32,window_size=128):
+    def getFFT(self):
 
         amp = []
         hus = []
-
+        
         self.rData['husec'].tofile(__HUSEC_FILE__)
-        self.cData['golay'].tofile(__DATA_FILE__)
+        self.rData['golay'].tofile(__DATA_FILE__)
 
         if os.path.exists(self.MetaData['FFTProgram']):
-            os.spawnl(os.P_WAIT,self.MetaData['FFTProgram'],os.path.basename(self.MetaData['FFTProgram']),str(window_size),str(steps))
+            os.spawnl(os.P_WAIT,self.MetaData['FFTProgram'],os.path.basename(self.MetaData['FFTProgram']) )
         else:
             print("\n\n No {0:s}  module found in {1:s}\nExit\n\n".format(os.path.basename(self.MetaData['FFTProgram']),
                                                                           os.path.dirname(self.MetaData['FFTProgram'])))
@@ -345,7 +345,7 @@ class rbd(object):
         os.remove(__HUSEC_FILE__)
         os.remove(__DATA_FILE__)
         dt_time = list(map(self.husec2dt,husec))
-        self.Deconv = {'amplitude': fftAmp , 'husec':husec, 'time':np.asarray(dt_time)}
+        self.Deconv = {'amplitude': fftAmp * self.CalFac['golay'][1] + self.CalFac['golay'][0], 'husec':husec, 'time':np.asarray(dt_time)}
 
         return 
 

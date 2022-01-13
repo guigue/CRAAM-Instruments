@@ -2,16 +2,10 @@
 
   HATS_fft
 
-  @guiguesp - Sao Paulo - 2021-12-17 - 
+  @guiguesp - Sao Paulo - 2021-10-12 - 
 
   Compile with:
    gcc -Wall -g windowed_dft.c HATS_fft.c -lm -lfftw3 -o HATS_fft
-
-  usage:
-    HATS_fft [window_size steps]
-             where window_size = number of records taken to get the FFT
-                   steps = shift between windows
-                   steps < window_size
 
 ******************************************************************/
 
@@ -48,7 +42,7 @@ void fft(long int window_size,
   int i;
   for(i = 0; i < num_windows; i++)
     {
-      fftCoeff[i] = goertzel_amplitude(&signal[i*steps]     ,
+      fftCoeff[i] = goertzel_amplitude(&signal[i*STEPS]     ,
 				       TARGET_FREQUENCY     ,
 				       window_size          ,
 				       SAMPLING_FREQUENCY   ,
@@ -59,7 +53,7 @@ void fft(long int window_size,
 
 int main(int argc, char ** argv){
   FILE *fpi, *fpo;
-  long int num_windows, nrec, window_size, steps;
+  long int num_windows, nrec, window_size, steps,i;
 
   if (argc != 3)
     {
@@ -71,13 +65,11 @@ int main(int argc, char ** argv){
       window_size = atoi(argv[1]);
       steps = atoi(argv[2]);
     }
-
-  if (steps > window_size) steps = window_size;
-  
+	
   if  (NULL == (fpi = fopen(DATA_FILE,"rb"))) exit(1);
-  nrec = bin_size(fpi) / sizeof(double) ;
+  nrec = bin_size(fpi) / sizeof(int) ;
   fseek(fpi,0L,SEEK_SET);  
-  //int * adc = malloc(sizeof(int)*nrec);
+  int * adc = malloc(sizeof(int)*nrec);
   unsigned long int * husec = malloc(sizeof(unsigned long int) * nrec);
   double * signal = malloc(sizeof(double) * nrec);
   
@@ -85,9 +77,9 @@ int main(int argc, char ** argv){
   unsigned long int * m_husec = malloc(sizeof(unsigned long int) * num_windows);
   double * fftAmp = malloc(sizeof(double) * num_windows) ;
   
-  fread(signal, sizeof(double), nrec, fpi);
+  fread(adc, sizeof(int), nrec, fpi);
   fclose(fpi);
-  //  for (i=0;i<nrec;i++) signal[i] = (double) adc[i];
+  for (i=0;i<nrec;i++) signal[i] = (double) adc[i];
   
   if  (NULL == (fpi = fopen(HUSEC_FILE,"rb"))) exit(1);
   fread(husec, sizeof(unsigned long int), nrec, fpi);
