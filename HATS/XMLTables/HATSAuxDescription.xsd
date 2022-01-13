@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+    <xs:element name="HATSAuxFormat" type="HATSAuxFormatType"/>
+    <xs:complexType name="HATSAuxFormatType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="HATSAuxVariable" type="HATSAuxVariableType"/>
+        </xs:sequence>
+        <xs:attribute name="DataType" type="xs:string"/>
+        <xs:attribute name="InitialDate" type="xs:date"/>
+        <xs:attribute name="FinalDate" type="xs:date"/>
+    </xs:complexType>
+    <xs:complexType name="HATSAuxVariableType">
+        <xs:sequence>
+            <xs:element name="VarName" type="xs:string"/>
+            <xs:element name="VarLength" type="xs:integer"/>
+            <xs:element name="VarType" type="xs:string"/>
+            <xs:element name="VarUnit" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
+

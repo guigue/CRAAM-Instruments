@@ -59,8 +59,8 @@
         <VarUnit>none</VarUnit>
         <VarOrigin>ad7770</VarOrigin>
         <Convert>yes</Convert>
-        <ConvOrd>0.0</ConvOrd>
-        <ConvSlope>1.0</ConvSlope>
+        <ConvOrd>-6.987</ConvOrd>
+        <ConvSlope>0.005808</ConvSlope>
     </HATSDataVariable>
 
 <HATSDataVariable VarName="rawChopper">
@@ -70,8 +70,8 @@
         <VarUnit>none</VarUnit>
         <VarOrigin>ad7770</VarOrigin>
         <Convert>yes</Convert>
-        <ConvOrd>0.0</ConvOrd>
-        <ConvSlope>1.0</ConvSlope>
+        <ConvOrd>0.13110863205497668</ConvOrd>
+        <ConvSlope>0.00029855314482167888</ConvSlope>
     </HATSDataVariable>
     
 <HATSDataVariable VarName="rawTemp_HICS">
@@ -81,8 +81,8 @@
         <VarUnit>none</VarUnit>
         <VarOrigin>ad7770</VarOrigin>
         <Convert>yes</Convert>
-        <ConvOrd>0.05</ConvOrd>
-        <ConvSlope>0.000017881394498431353</ConvSlope>
+        <ConvOrd>0.013110863205497668</ConvOrd>
+        <ConvSlope>0.000029855314482167888</ConvSlope>
     </HATSDataVariable>
 
 <HATSDataVariable VarName="rawTemp_ENV">
@@ -92,8 +92,8 @@
         <VarUnit>none</VarUnit>
         <VarOrigin>ad7770</VarOrigin>
         <Convert>yes</Convert>
-        <ConvOrd>0.05</ConvOrd>
-        <ConvSlope>0.000017881394498431353</ConvSlope>
+        <ConvOrd>0.013110863205497668</ConvOrd>
+        <ConvSlope>0.000029855314482167888</ConvSlope>
     </HATSDataVariable>
 
 <HATSDataVariable VarName="rawTemp_GOLAY">
@@ -103,8 +103,8 @@
         <VarUnit>none</VarUnit>
         <VarOrigin>ad7770</VarOrigin>
         <Convert>yes</Convert>
-        <ConvOrd>0.05</ConvOrd>
-        <ConvSlope>0.000017881394498431353</ConvSlope>
+        <ConvOrd>0.013110863205497668</ConvOrd>
+        <ConvSlope>0.000029855314482167888</ConvSlope>
     </HATSDataVariable>
 
 </HATSDataFormat>
