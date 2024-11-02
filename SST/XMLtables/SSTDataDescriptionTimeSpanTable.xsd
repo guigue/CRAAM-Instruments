@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+    <xs:annotation>
+        <xs:documentation> SST Data Description Time Span Table schema </xs:documentation>
+    </xs:annotation>
+
+    <xs:element name="SSTDataFormatTimeSpanTable" type="SSTDataFormatTimeSpanTableType"/>
+    <xs:complexType name="SSTDataFormatTimeSpanTableType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="SSTDataFormatTimeSpanElement" type="SSTDataFormatTimeSpanElementType"
+            />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="SSTDataFormatTimeSpanElementType">
+        <xs:sequence>
+            <xs:element name="SSTDataType" type="xs:string"/>
+            <xs:element name="InitialDate" type="xs:date"/>
+            <xs:element name="FinalDate" type="xs:date"/>
+            <xs:element name="DataFormatDecriptionFile" type="xs:anyURI"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+</xs:schema>

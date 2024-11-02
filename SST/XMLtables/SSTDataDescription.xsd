@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:annotation>
+        <xs:documentation xml:lang="en"> Generic Schema for SST Data Structures. Can be used with
+            subintegration (RF, fast), integration (RS,slow) and auxiliary (BI, monitoring) raw data
+            files. Every Data Structure xml file is constitued by a sequence of "SST Data Variables"
+            which corresponds to a data variable (time, adc, temperature, etc) and contains the
+            variable description: "name", "length" (1 if scalar, > 1 if array) and "type".
+        </xs:documentation>
+    </xs:annotation>
+    <xs:element name="SSTDataFormat" type="SSTDataFormatType"/>
+    <xs:complexType name="SSTDataFormatType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="SSTDataVariable" type="SSTDataVariableType"/>
+        </xs:sequence>
+        <xs:attribute name="DataType" type="xs:string"/>
+        <xs:attribute name="InitialDate" type="xs:date"/>
+        <xs:attribute name="FinalDate" type="xs:date"/>
+        <xs:attribute name="IDLReference" type="xs:string"></xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="SSTDataVariableType">
+        <xs:sequence>
+            <xs:element name="VarName" type="xs:string"/>
+            <xs:element name="VarLength" type="xs:integer"/>
+            <xs:element name="VarType" type="xs:string"/>
+            <xs:element name="VarUnit" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="VarName" type="xs:string"/>
+    </xs:complexType>
+</xs:schema>

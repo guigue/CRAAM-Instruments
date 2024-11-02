@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="SSTDataDescription.xsd" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<!-- 
+    
+           SST Data Format Description Timespan Table
+           
+    Comment = This table contains the links to the data description xml files
+    Author  = Guigue
+    Date    = 2017-07-29
+
+-->
+<SSTDataFormatTimeSpanTable xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="SSTDataDescriptionTimeSpanTable.xsd">
+
+    <SSTDataFormatTimeSpanElement>
+        <SSTDataType>Data</SSTDataType>
+        <InitialDate>2002-12-14</InitialDate>
+        <FinalDate>2100-01-01</FinalDate>
+        <DataFormatDecriptionFile>DataFormat-2002-12-14_to_2100-01-01.xml</DataFormatDecriptionFile>
+    </SSTDataFormatTimeSpanElement>
+
+    <SSTDataFormatTimeSpanElement>
+        <SSTDataType>Data</SSTDataType>
+        <InitialDate>2002-12-04</InitialDate>
+        <FinalDate>2002-12-13</FinalDate>
+        <DataFormatDecriptionFile>DataFormat-2002-12-04_to_2002-12-13.xml</DataFormatDecriptionFile>
+    </SSTDataFormatTimeSpanElement>
+
+    <SSTDataFormatTimeSpanElement>
+        <SSTDataType>Data</SSTDataType>
+        <InitialDate>2002-05-21</InitialDate>
+        <FinalDate>2002-12-03</FinalDate>
+        <DataFormatDecriptionFile>DataFormat-2002-05-21_to_2002-12-03.xml</DataFormatDecriptionFile>
+    </SSTDataFormatTimeSpanElement>
+
+    <SSTDataFormatTimeSpanElement>
+        <SSTDataType>Data</SSTDataType>
+        <InitialDate>1999-05-02</InitialDate>
+        <FinalDate>2002-05-20</FinalDate>
+        <DataFormatDecriptionFile>DataFormat-1999-05-02_to_2002-05-20.xml</DataFormatDecriptionFile>
+    </SSTDataFormatTimeSpanElement>
+
+    <SSTDataFormatTimeSpanElement>
+        <SSTDataType>Data</SSTDataType>
+        <InitialDate>1900-01-01</InitialDate>
+        <FinalDate>1999-05-01</FinalDate>
+        <DataFormatDecriptionFile>DataFormat-1900-01-01_to_1999-05-01.xml</DataFormatDecriptionFile>
+    </SSTDataFormatTimeSpanElement>
+
+    <SSTDataFormatTimeSpanElement>
+        <SSTDataType>Auxiliary</SSTDataType>
+        <InitialDate>2002-12-14</InitialDate>
+        <FinalDate>2100-01-01</FinalDate>
+        <DataFormatDecriptionFile>AuxiliaryDataFormat-2002-12-14_to_2100-01-01.xml</DataFormatDecriptionFile>
+    </SSTDataFormatTimeSpanElement>
+
+    <SSTDataFormatTimeSpanElement>
+        <SSTDataType>Auxiliary</SSTDataType>
+        <InitialDate>2002-11-24</InitialDate>
+        <FinalDate>2002-12-13</FinalDate>
+        <DataFormatDecriptionFile>AuxiliaryDataFormat-2002-11-24_to_2002-12-13.xml</DataFormatDecriptionFile>
+    </SSTDataFormatTimeSpanElement>
+
+    <SSTDataFormatTimeSpanElement>
+        <SSTDataType>Auxiliary</SSTDataType>
+        <InitialDate>2002-09-16</InitialDate>
+        <FinalDate>2002-11-23</FinalDate>
+        <DataFormatDecriptionFile>AuxiliaryDataFormat-2002-09-16_to_2002-11-23.xml</DataFormatDecriptionFile>
+    </SSTDataFormatTimeSpanElement>
+
+    <SSTDataFormatTimeSpanElement>
+        <SSTDataType>Auxiliary</SSTDataType>
+        <InitialDate>1900-01-01</InitialDate>
+        <FinalDate>2002-09-15</FinalDate>
+        <DataFormatDecriptionFile>AuxiliaryDataFormat-1900-01-01_to_2002-09-15.xml</DataFormatDecriptionFile>
+    </SSTDataFormatTimeSpanElement>
+    
+</SSTDataFormatTimeSpanTable>

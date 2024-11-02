@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<HATSDataFormat
+    DataType="Data" 
+    InitialDate="2021-10-25" 
+    FinalDate="2100-01-01"
+    FFTProgram="/monalisa/guigue/Programming/CRAAM-Instruments/HATS/HATS_fft"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="HATSDataDescription.xsd">
+
+    <HATSDataVariable VarName="Sample">
+        <VarName>sample</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:unsignedInt</VarType>
+        <VarUnit>none</VarUnit>
+        <VarOrigin>sam4e</VarOrigin>
+        <Convert>no</Convert>
+        <ConvOrd>0.0</ConvOrd>
+        <ConvSlope>1.0</ConvSlope>
+        <ConvUnit>none</ConvUnit>
+    </HATSDataVariable>
+
+    <HATSDataVariable VarName="Timestamp_sec">
+        <VarName>sec</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:unsignedInt</VarType>
+        <VarUnit>unix_time</VarUnit>
+        <VarOrigin>sam4e</VarOrigin>
+        <Convert>no</Convert>
+        <ConvOrd>0.0</ConvOrd>
+        <ConvSlope>1.0</ConvSlope>
+        <ConvUnit>unix_time</ConvUnit>
+    </HATSDataVariable>
+
+    <HATSDataVariable VarName="Timestamp_ms">
+        <VarName>ms</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:unsignedShort</VarType>
+        <VarUnit>ms_0UTC</VarUnit>
+        <VarOrigin>sam4e</VarOrigin>
+        <Convert>no</Convert>
+        <ConvOrd>0.0</ConvOrd>
+        <ConvSlope>1.0</ConvSlope>
+        <ConvUnit>ms_0UTC</ConvUnit>
+    </HATSDataVariable>
+
+    <HATSDataVariable VarName="Timestamp_husec">
+        <VarName>husec</VarName>
+                <VarLength>1</VarLength>
+        <VarType>xs:unsignedLong</VarType>
+        <VarUnit>husec_0UTC</VarUnit>
+        <VarOrigin>sam4e</VarOrigin>
+        <Convert>no</Convert>
+        <ConvOrd>0.0</ConvOrd>
+        <ConvSlope>1.0</ConvSlope>
+        <ConvUnit>husec_0UTC</ConvUnit>
+    </HATSDataVariable>
+
+<HATSDataVariable VarName="rawGolay">
+        <VarName>golay</VarName>
+                <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>ADCu</VarUnit>
+        <VarOrigin>ad7770</VarOrigin>
+        <Convert>yes</Convert>
+        <ConvOrd>0.0</ConvOrd>
+        <ConvSlope>0.001154</ConvSlope>
+        <ConvUnit>mV</ConvUnit>
+    </HATSDataVariable>
+
+<HATSDataVariable VarName="rawChopper">
+        <VarName>chopper</VarName>
+                <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>ADCu</VarUnit>
+        <VarOrigin>ad7770</VarOrigin>
+        <Convert>yes</Convert>
+        <ConvOrd>-2.106</ConvOrd>
+        <ConvSlope>0.00233</ConvSlope>
+        <ConvUnit>mV</ConvUnit>
+    </HATSDataVariable>
+    
+<HATSDataVariable VarName="rawTemp_HICS">
+        <VarName>temp_hics</VarName>
+                <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>ADCu</VarUnit>
+        <VarOrigin>ad7770</VarOrigin>
+        <Convert>yes</Convert>
+        <ConvOrd>0.013</ConvOrd>
+        <ConvSlope>0.0000299</ConvSlope>
+        <ConvUnit>C</ConvUnit>
+    </HATSDataVariable>
+
+<HATSDataVariable VarName="rawTemp_ENV">
+        <VarName>temp_env</VarName>
+                <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>ADCu</VarUnit>
+        <VarOrigin>ad7770</VarOrigin>
+        <Convert>yes</Convert>
+        <ConvOrd>0.013</ConvOrd>
+        <ConvSlope>0.0000299</ConvSlope>
+        <ConvUnit>C</ConvUnit>
+    </HATSDataVariable>
+
+<HATSDataVariable VarName="rawTemp_GOLAY">
+        <VarName>temp_golay</VarName>
+                <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>ADCu</VarUnit>
+        <VarOrigin>ad7770</VarOrigin>
+        <Convert>yes</Convert>
+        <ConvOrd>0.013</ConvOrd>
+        <ConvSlope>0.0000299</ConvSlope>
+        <ConvUnit>C</ConvUnit>
+    </HATSDataVariable>
+
+</HATSDataFormat>

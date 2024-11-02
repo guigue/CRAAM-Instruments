@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<POEMASDataFormat
+    DataType="Data" 
+    InitialDate="2001-1-1" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="POEMASDataDescription.xsd">
+
+    <POEMASDataVariable VarName="sec">
+        <VarName>sec</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>none</VarUnit>
+    </POEMASDataVariable>
+
+    <POEMASDataVariable VarName="ele_ang">
+        <VarName>ele_ang</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>none</VarUnit>
+    </POEMASDataVariable>
+
+    <POEMASDataVariable VarName="azi_ang">
+        <VarName>zi_ang</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>none</VarUnit>
+    </POEMASDataVariable>
+
+    <POEMASDataVariable VarName="TBL_45">
+        <VarName>TBL_45</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>none</VarUnit>
+    </POEMASDataVariable>
+
+    <POEMASDataVariable VarName="TBR_45">
+        <VarName>TBR_45</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>none</VarUnit>
+    </POEMASDataVariable>
+
+    <POEMASDataVariable VarName="TBL_90">
+        <VarName>TBL_90</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>none</VarUnit>
+    </POEMASDataVariable>
+
+    <POEMASDataVariable VarName="TBR_90">
+        <VarName>TBR_90</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>none</VarUnit>
+    </POEMASDataVariable>
+
+</POEMASDataFormat>

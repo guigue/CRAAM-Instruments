@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="SSTDataDescription.xsd" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+
+<!--     
+                       SST Data Description. 
+
+Type      = Auxiliary (BI, monitoring)
+Time Span = 2002-11-24 to 2002-12-13
+Origin    = IDL sst_struct.pro, version 2017-07-29, lines: 79-89
+Structure = (from IDL)
+
+
+        nchan   = 6
+        nradiom = 6
+        raw_struc={n_struc,
+                   time:          0l             ,$ 
+                   azipos:        0.0            ,$ 
+                   elepos:        0.0            ,$ 
+                   azierr:        0.0            ,$ 
+                   eleerr:        0.0            ,$
+                   adc:           lonarr(nchan)  ,$ 
+                   sigma:         fltarr(nchan)  ,$ 
+                   gps_status:    0              ,$ 
+                   daq_status:    0              ,$ 
+                   acq_gain:      0              ,$
+                   target:        0b             ,$ 
+                   opmode:        0b             ,$ 
+                   off:           intarr(nradiom),$  
+                   hot_temp:      0.0            ,$ 
+                   amb_temp:      0.0            ,$
+                   opt_temp:      0.0            ,$
+                   if_board_temp: 0.0            ,$
+                   radome_temp:   0.0            ,$
+                   humidity:      0.0            ,$
+                   temperature:   0.0            ,$
+                   opac_210:      0.0            ,$
+                   opac_405:      0.0            ,$
+                   elevation:     0.0            ,$ 
+                   pressure :     0.0            ,$
+                   burst :        0b             ,$
+                   errors:        0l              }
+                   
+-->
+
+<SSTDataFormat 
+    DataType="Auxiliary" 
+    InitialDate="2002-11-24"
+    FinalDate="2002-12-13"
+    IDLReference="sst_struc.pro:79-89"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="SSTDataDescription.xsd">
+
+    <SSTDataVariable VarName="time">
+        <VarName>time</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>Hus</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="azipos">
+        <VarName>azipos</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>Deg</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="elepos">
+        <VarName>elepos</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>Deg</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="azierr">
+        <VarName>azierr</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>Deg</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="eleerr">
+        <VarName>eleerr</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>Deg</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="adc">
+        <VarName>adc</VarName>
+        <VarLength>6</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>ADCu</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="sigma">
+        <VarName>sigma</VarName>
+        <VarLength>6</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>ADCu</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="gps_status">
+        <VarName>gps_status</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:short</VarType>
+        <VarUnit>none</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="daq_status">
+        <VarName>daq_status</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:short</VarType>
+        <VarUnit>none</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="acq_gain">
+        <VarName>acq_gain</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:short</VarType>
+        <VarUnit>none</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="target">
+        <VarName>target</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:byte</VarType>
+        <VarUnit>none</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="opmode">
+        <VarName>opmode</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:byte</VarType>
+        <VarUnit>none</VarUnit>
+    </SSTDataVariable>
+        
+    <SSTDataVariable VarName="off">
+        <VarName>off</VarName>
+        <VarLength>6</VarLength>
+        <VarType>xs:short</VarType>
+        <VarUnit>ADCu</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="hot_temp">
+        <VarName>hot_temp</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>C</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="amb_temp">
+        <VarName>amb_temp</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>C</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="opt_temp">
+        <VarName>opt_temp</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>C</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="if_board">
+        <VarName>if_board</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>C</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="radome_temp">
+        <VarName>radome_temp</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>C</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="humidity">
+        <VarName>humidity</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>%</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="temperature">
+        <VarName>temperature</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>C</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="opac_210">
+        <VarName>opac_210</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>none</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="opac_405">
+        <VarName>opac_405</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>none</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="elevation">
+        <VarName>elevation</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>none</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="pressure">
+        <VarName>pressure</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>mmHg</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="burst">
+        <VarName>burst</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:byte</VarType>
+        <VarUnit>none</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="errors">
+        <VarName>errors</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>none</VarUnit>
+    </SSTDataVariable>
+    
+</SSTDataFormat>

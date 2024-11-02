@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<HATSAuxFormat
+    DataType="Data" 
+    InitialDate="2021-10-25" 
+    FinalDate="2100-01-01"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="HATSAuxDescription.xsd">
+    
+    <HATSAuxVariable VarName="Timestamp_husec">
+        <VarName>husec</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:unsignedLong</VarType>
+        <VarUnit>none</VarUnit>
+    </HATSAuxVariable>
+    
+    <HATSAuxVariable VarName="Timestamp_JD">
+        <VarName>jd</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:double</VarType>
+        <VarUnit>day</VarUnit>
+    </HATSAuxVariable>
+    
+    <HATSAuxVariable VarName="Timestamp_Sid">
+        <VarName>sid</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:double</VarType>
+        <VarUnit>hour</VarUnit>
+    </HATSAuxVariable>
+    
+    <HATSAuxVariable VarName="Pos_Alt">
+        <VarName>elevation</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:double</VarType>
+        <VarUnit>degrees</VarUnit>
+    </HATSAuxVariable>
+    
+    <HATSAuxVariable VarName="Pos_Az">
+        <VarName>azimuth</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:double</VarType>
+        <VarUnit>degrees</VarUnit>
+    </HATSAuxVariable>
+    
+        <HATSAuxVariable VarName="Pos_RA">
+        <VarName>right_ascension</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:double</VarType>
+        <VarUnit>degrees</VarUnit>
+    </HATSAuxVariable>
+
+    <HATSAuxVariable VarName="Pos_Dec">
+        <VarName>declination</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:double</VarType>
+        <VarUnit>degrees</VarUnit>
+    </HATSAuxVariable>
+    
+    <HATSAuxVariable VarName="Rate_RA">
+        <VarName>ra_rate</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:double</VarType>
+        <VarUnit>degrees/s</VarUnit>
+    </HATSAuxVariable>
+    
+    <HATSAuxVariable VarName="Rate_Dec">
+        <VarName>dec_rate</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:double</VarType>
+        <VarUnit>degrees/s</VarUnit>
+    </HATSAuxVariable>
+    
+    <HATSAuxVariable VarName="Object">
+        <VarName>object</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>degrees/s</VarUnit>
+    </HATSAuxVariable>
+    
+    <HATSAuxVariable VarName="Opmode">
+        <VarName>opmode</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>degrees/s</VarUnit>
+    </HATSAuxVariable>
+    
+  </HATSAuxFormat>
+

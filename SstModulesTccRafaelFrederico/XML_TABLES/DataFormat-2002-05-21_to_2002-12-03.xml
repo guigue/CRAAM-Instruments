@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?xml-model href="SSTDataDescription.xsd" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+
+<!--     
+                       SST Data Description. 
+
+Type      = SubIntegration (RF,fast) and Integration (RS, integrated)
+Time Span = 2002-05-21 to 2002-12-03
+Origin    = IDL sst_struct.pro, version 2017-07-29, lines: 195-204
+Structure = (from IDL)
+
+            nradiom = 6
+            nchan   = 8
+            raw_struc={n_struc,
+                       time:0l, 
+                       adcval:     intarr(nchan)   ,$ 
+                       pos_time:   0l              ,$
+                       azipos:     0l              ,$ 
+                       elepos:     0l              ,$ 
+                       pm_daz:     0               ,$ 
+                       pm_del:     0               ,$ 
+                       azierr:     0l              ,$
+                       eleerr:     0l              ,$ 
+                       x_off:      0               ,$ 
+                       y_off:      0               ,$ 
+                       att:        intarr(nradiom) ,$
+                       target:     0b              ,$ 
+                       opmode:     0b              ,$ 
+                       gps_status: 0               ,$ 
+                       daq_status: 0               ,$ 
+                       recnum:     0l              }
+            
+            
+-->
+
+<SSTDataFormat 
+    DataType="Data" 
+    InitialDate="2002-05-21" 
+    FinalDate="2002-12-03"
+    IDLReference="sst_struc.pro:195-204"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="SSTDataDescription.xsd">
+    
+    <SSTDataVariable VarName="time">
+        <VarName>time</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>Hus</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="adcval">
+        <VarName>adcval</VarName>
+        <VarLength>8</VarLength>
+        <VarType>xs:short</VarType>
+        <VarUnit>ADCu</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="pos_time">
+        <VarName>pos_time</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>Hus</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="azipos">
+        <VarName>azipos</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>mDeg</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="elepos">
+        <VarName>elepos</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>mDeg</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="pm_daz">
+        <VarName>pm_daz</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:short</VarType>
+        <VarUnit>mDeg</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="pm_del">
+        <VarName>pm_del</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:short</VarType>
+        <VarUnit>mDeg</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="azierr">
+        <VarName>azierr</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>mDeg</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="eleerr">
+        <VarName>eleerr</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>mDeg</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="x_off">
+        <VarName>x_off</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:short</VarType>
+        <VarUnit>mDeg</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="y_off">
+        <VarName>y_off</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:short</VarType>
+        <VarUnit>mDeg</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="att">
+        <VarName>att</VarName>
+        <VarLength>6</VarLength>
+        <VarType>xs:short</VarType>
+        <VarUnit>dB</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="target">
+        <VarName>target</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:byte</VarType>
+        <VarUnit>none</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="opmode">
+        <VarName>opmode</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:byte</VarType>
+        <VarUnit>none</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="gps_status">
+        <VarName>gps_status</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:short</VarType>
+        <VarUnit>none</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="daq_status">
+        <VarName>daq_status</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:short</VarType>
+        <VarUnit>none</VarUnit>
+    </SSTDataVariable>
+    
+    <SSTDataVariable VarName="recnum">
+        <VarName>recnum</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>none</VarUnit>
+    </SSTDataVariable>
+    
+</SSTDataFormat>

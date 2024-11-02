@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+    <xs:element name="HATSDataFormat" type="HATSDataFormatType"/>
+    <xs:complexType name="HATSDataFormatType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="HATSDataVariable" type="HATSDataVariableType"/>
+        </xs:sequence>
+        <xs:attribute name="DataType" type="xs:string"/>
+        <xs:attribute name="InitialDate" type="xs:date"/>
+        <xs:attribute name="FinalDate" type="xs:date"/>
+        <xs:attribute name="FFTProgram" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="HATSDataVariableType">
+        <xs:sequence>
+            <xs:element name="VarName" type="xs:string"/>
+            <xs:element name="VarLength" type="xs:integer"/>
+            <xs:element name="VarType" type="xs:string"/>
+            <xs:element name="VarUnit" type="xs:string"/>
+            <xs:element name="VarOrigin" type="xs:string"/>
+            <xs:element name="Convert" type="xs:string"/>
+            <xs:element name="ConvOrd" type="xs:float"/>
+            <xs:element name="ConvSlope" type="xs:float"/>
+        </xs:sequence>
+        <xs:attribute name="VarName" type="xs:string"/>
+    </xs:complexType>
+</xs:schema>

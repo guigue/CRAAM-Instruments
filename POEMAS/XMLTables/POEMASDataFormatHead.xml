@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<POEMASDataFormat
+    DataType="Data" 
+    InitialDate="2001-1-1" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="POEMASDataDescription.xsd">
+
+    <POEMASDataVariable VarName="Code">
+        <VarName>Code</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>none</VarUnit>
+    </POEMASDataVariable>
+
+    <POEMASDataVariable VarName="NRS">
+        <VarName>NRS</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>none</VarUnit>
+    </POEMASDataVariable>
+
+    <POEMASDataVariable VarName="FreqNo">
+        <VarName>FreqNo</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:int</VarType>
+        <VarUnit>GHz</VarUnit>
+    </POEMASDataVariable>
+
+    <POEMASDataVariable VarName="Freq1">
+        <VarName>Freq1</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>GHz</VarUnit>
+    </POEMASDataVariable>
+
+    <POEMASDataVariable VarName="Freq2">
+        <VarName>Freq2</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>GHz</VarUnit>
+    </POEMASDataVariable>
+
+    <POEMASDataVariable VarName="BRTMin">
+        <VarName>BRTMin</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>none</VarUnit>
+    </POEMASDataVariable>
+
+    <POEMASDataVariable VarName="BRTMax">
+        <VarName>BRTMAX</VarName>
+        <VarLength>1</VarLength>
+        <VarType>xs:float</VarType>
+        <VarUnit>none</VarUnit>
+    </POEMASDataVariable>
+
+</POEMASDataFormat>
