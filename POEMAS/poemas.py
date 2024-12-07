@@ -30,7 +30,7 @@ import pdb
 #    @Guiguesp - from a version written by Julia (?)
 #
 # Version: 
-__Version__ = '2024-05-16T10:03'
+__Version__ = '2024-12-07T17:30BST'
 #
 # Notes:
 #    Presently only TRK files can be read.
@@ -44,6 +44,7 @@ class Poemas(object):
         self.type = ""
         self.data = {}
         self.history = []
+        self.level = 'L0' 
 
     def __str__(self):
         return "A class for POEMAS data"
@@ -301,14 +302,22 @@ class Poemas(object):
 
         return _temp_
         
-        
+    def add_history(self,history):
+
+        self.history.append(history)
+        return
+
+    def change_level(self,level):
+
+        self.level=level
+        return
   
     def to_fits(self):
 
         """
         Write POEMAS data to a FITS file.
         By default the name of the fits file is defined as:
-        poemas_[TRK |  | ]_YYYY-MM-DD_HH:MM:SS.SSSTHH:MM:SS.SSS_level0.fits
+        poemas_[TRK |  | ]_YYYY-MM-DD_HH:MM:SS.SSSTHH:MM:SS.SSS_LLL.fits
         The file has two HDUs. The primary containing just a header with general
         information such as the origin, telescope, time zone. The second is a BinaryTable
         containing the data and a header with data specific information.
@@ -331,9 +340,10 @@ class Poemas(object):
             in the output path.
         """
 
-        name = "poemas_{}_{}-{}_L0.fits".format(self.type.lower(),
-                                                    self.t_init.replace(':','_'),
-                                                    self.t_end[11:].replace(':','_'))
+        name = "poemas_{}_{}-{}_{}.fits".format(self.type.lower(),
+                                                self.t_init.replace(':','_'),
+                                                self.t_end[11:].replace(':','_'),
+                                                self.level)
         name = Path(name)
 
         if (name).exists():
@@ -366,7 +376,7 @@ class Poemas(object):
 
         #History
         hdu.header.append(("history", "Flux density obtained from brightness temperatures")) #modificar        
-        hdu.header.append(("history", "Converted to FITS level-0 with poemas.py")) #modificar
+        hdu.header.append(("history", "Converted to FITS level = {} with poemas.py".format(self.level))) #modificar
 
         for hist in self.history:
             hdu.header.append(("history", hist))
