@@ -2,6 +2,7 @@ import os
 import xml.etree.ElementTree as xmlet
 import numpy as np
 from astropy.io import fits
+from astropy import units as u
 import collections
 import warnings
 import pdb
@@ -10,9 +11,12 @@ import pickle
 from scipy.optimize import curve_fit
 
 from CraamTools import contiguo
+from CraamTools import Opacity
+
+
 
 ############ Global Variables ##########
-__version__       = "2024-10-12T1056BRT"
+__version__       = "2024-12-17T23:316BRT"
 __DATA_FILE__     = "hats_data_rbd.bin"
 __HUSEC_FILE__    = "hats_husec.bin"
 __RECORD_SIZE__   = 38
@@ -147,6 +151,8 @@ short_array       = collections.deque()
 #                     2024-10-10 - Sampa
 #                            - weather station data included here
 #                            - sky dip method included
+#                     2024-12-17 - Sampa
+#                            - Computes the PWV (simple formula)
 #
 ####################################################################################################################################
 
@@ -1036,7 +1042,7 @@ class ws(object):
         self.MetaData.update({'Filename':fname})
         self.data = {}
         self.from_file(fname)
-        self.Units = {'Temperature':'°C','Humidity':'%','Pressure':'HPa'}
+        self.Units = {'Temperature':'°C','Humidity':'%','Pressure':'HPa','PWV':'mm'}
         
         return
 
@@ -1050,6 +1056,7 @@ class ws(object):
         Temperature = []
         Humidity = []
         Pressure = []
+        PWV = []
         
         f = open(fullpathname,'r',errors='ignore')
         for line in f:
@@ -1061,14 +1068,19 @@ class ws(object):
                     Humidity.append(float(s[3].split(sep='=')[1][:-1]))
                     temp = s[4].split(sep='=')[1]
                     Pressure.append(float(temp[:temp.find('H')]))
+                    PWV.append(Opacity.pwv( temperature=Temperature[-1]*u.Celsius,
+                                            humidity=Humidity[-1]*u.Unit(''),
+                                            Hh2o=2.0*u.km).value)
                 except:
                     break
                     
         f.close()
-        self.data.update({'time':np.asarray(DateTime),
-                          'temperature':np.asarray(Temperature),
-                          'humidity':np.asarray(Humidity),
-                          'pressure':np.asarray(Pressure)})    
+
+        self.data.update({'time':np.asarray(DateTime)           ,
+                          'temperature':np.asarray(Temperature) ,
+                          'humidity':np.asarray(Humidity)       ,
+                          'pressure':np.asarray(Pressure)       ,
+                          'pwv':np.asarray(PWV)})    
         return
 
     def to_csv(self):
