@@ -8,16 +8,17 @@ import pdb
 import datetime as dt
 import pickle
 from scipy.optimize import curve_fit
-
-from CraamTools import contiguo
+from astropy import units as u
+from astropy import constants as c
 
 ############ Global Variables ##########
-__version__       = "2024-10-12T1056BRT"
+__version__       = "2025-04-11T1610ART"
 __DATA_FILE__     = "hats_data_rbd.bin"
 __HUSEC_FILE__    = "hats_husec.bin"
 __RECORD_SIZE__   = 38
 short_array       = collections.deque()
 #######################################
+
 
 ###########################################################################################################################################
 #
@@ -118,6 +119,8 @@ short_array       = collections.deque()
 #   __add__                      : h=HATS.hats('2021-12-13T1500')
 #                                  g=HATS.hats('2021-12-13T1600')
 #                                  i=h+g
+#   plot()                       : Simple plot of data
+#                                  Returns the time axis
 #   
 ####################################################################################################################################
 #   
@@ -147,8 +150,79 @@ short_array       = collections.deque()
 #                     2024-10-10 - Sampa
 #                            - weather station data included here
 #                            - sky dip method included
+#                     2025-04-08 - OAFA
+#                            - Class ws computes the Precipitable Water Vapor Content.
 #
 ####################################################################################################################################
+
+
+########### Global Functions ##########
+def contiguo(index):
+
+    nu = len(index)
+    if (nu < 2):
+        return np.zeros([2,1],int)
+    
+    n = nu-1
+    ad = 0
+    
+    dif = index[1:] - index[:-1]
+
+#    pdb.set_trace()
+    
+    if ((dif[0] != 1) & (dif[1] == 1)):
+        index = index[1:]
+        dif  = index[1:] - index[:-1]
+        ad   = 1
+        nu   = nu - 1
+        n    = n - 1
+    
+    if ((dif[n-1] != 1) & (dif[n-2] == 1)):
+        index = index[0:n-1]
+        dif   = index[1:] -index[:-1]
+        nu    = nu-1
+        n     = n-1
+    
+    tt, = np.where(dif == 1)
+#    pdb.set_trace()    
+    if (len(tt) == 0): 
+        return np.zero([2,1],int)
+        
+    if (len(tt) == nu-1):
+        pp = np.zeros([2,1],int)
+        pp[0,0] = 0
+        pp[1,0] = nu-1
+        return pp+ad
+        
+    k, = np.where(dif != 1)
+    dif[k] = 0
+    dif2 = dif[1:]-dif[:-1]
+        
+    pi, = np.where(dif2 == -1)
+    pf, = np.where(dif2 == 1)
+        
+    if (pi[0] < pf[0]):
+        tmp = np.zeros(len(pi)+1,int)
+        for i in range(len(pi)):
+            tmp[i+1] = pi[i]
+        pi = tmp
+        
+    if (pi[len(pi)-1] < pf[len(pf)-1]):
+        tmp = np.zeros(len(pf)+1,int)
+        for i in range(len(pf)):
+            tmp[i] = pf[i]
+        tmp[len(pf)] = nu-1
+        pf = tmp        
+            
+    pi[1:]  = np.array(pi[1:]) + 2 
+    pp      = np.zeros([2,len(pi)],int)
+    pp[0,:] = pi
+    pp[1,:] = pf
+        
+    return (pp+ad).T
+
+##############################################
+
 
 class hats(object):
     
@@ -156,7 +230,7 @@ class hats(object):
         return 'A Class representing HATS Data'
     
     def __init__(self,date='',PathToXML='',pklname=''):
-        
+
         warnings.filterwarnings('ignore')
 
         if (len(pklname) > 0):
@@ -222,7 +296,7 @@ class hats(object):
             
             self.MetaData.update({'Date':YMD})
             self.MetaData.update({'Hour':H+'00'})
-            
+
             fname = 'hats-'+YMD+'T'+H+'00.rbd'    # RBD file
             self.from_file(fname)
 
@@ -716,6 +790,33 @@ class hats(object):
 
         return
 
+    def plot(self):
+
+        from matplotlib import pyplot as plt
+        from matplotlib import dates
+
+        thats = self.getTimeAxis(self.rbd.Deconv['husec'],self.MetaData)
+        
+        fig=plt.figure()
+        fig.set_size_inches(((25*u.cm).to(u.imperial.inch)).value,
+                            ((15*u.cm).to(u.imperial.inch)).value)
+        ax=fig.add_subplot(1,1,1)
+        pos=[0.1,0.1,0.85,0.85]
+        ax.set_position(pos)
+        ax.xaxis.set_major_formatter(dates.DateFormatter('%H:%M'))
+        ax.plot(thats,self.rbd.Deconv['amplitude'],'-r')
+        ax.set_xlabel('UT')
+        ax.set_ylabel('mV')
+        if isinstance(self.MetaData['Date'],list):
+            dia=self.MetaData['Date'][0]
+        else:
+            dia=self.MetaData['Date']
+            
+        ax.set_title(dia)
+                         
+        return thats
+
+
 class env(object):
 
     def __init__(self):
@@ -805,12 +906,12 @@ class aux(object):
         fhandler = open(fname,'rb')
         whole_data = np.fromfile(fhandler, dt_list,count=nrecords,offset=offset)     # raw Data, no calibration
 
-        flag = whole_data['husec'] < int(MetaData['Hour'][:2])*36000000              # catch the interval with wrong husecs        
+        flag = whole_data['husec'] < int(MetaData['Hour'][:2])*36000000              # catch the interval with wrong husecs
         if np.version.full_version > '1.19':
             Data = np.delete(whole_data,flag,0)                                     # delete wrong records            
         else:
             Data = np.delete(whole_data,np.where(flag),0)                                     # delete wrong records            
-
+        
         deleted_records = whole_data.shape[0] - self.Data.shape[0]
         self.MetaData.update({'RBDRecDeleted':deleted_records})        
         self.MetaData.update({'N_Records_Read':whole_data.shape[0]})
@@ -879,14 +980,15 @@ class rbd(object):
         dt_list = list()
         for key, value in self._tblheader.items():
             dt_list.append((key, value[1], value[0]))
-        
+
         fhandler = open(fname,'rb')
         whole_data = np.fromfile(fhandler, dt_list,offset=offset,count=nrecords)     # raw Data, no calibration
         flag = whole_data['husec'] < int(MetaData['Hour'][:2])*36000000              # catch the interval with wrong husecs
+        
         if np.version.full_version > '1.19':
             self.rData = np.delete(whole_data,flag,0)                                     # delete wrong records
         else:
-            self.rData = np.delete(whole_data,np.where(flag),0)                                     # delete wrong records                    
+            self.rData = np.delete(whole_data,np.where(flag),0)                                     # delete wrong records
 
         self.MetaData.update({'N_Records_Deleted':whole_data.shape[0] - self.rData.shape[0]})        
         
@@ -1062,7 +1164,8 @@ class ws(object):
                     temp = s[4].split(sep='=')[1]
                     Pressure.append(float(temp[:temp.find('H')]))
                 except:
-                    break
+#                    pdb.set_trace()
+                    pass
                     
         f.close()
         self.data.update({'time':np.asarray(DateTime),
@@ -1087,3 +1190,78 @@ class ws(object):
 
         return
     
+    def dew(self,T,r):
+    ############################
+    #
+    # Dew Point Temperature
+    #
+    #     Inputs:  T, dry-bulb temperature (Celsius)
+    #              r, relative humidity in fraction (0...1)
+    #
+    #     Output:  Dew point temperature in Celsius
+    #
+    #
+    #     Source: https://en.wikipedia.org/wiki/Dew_point (2021-07-31)
+    #
+    ####################################################################
+    
+        a = 6.1121 * u.mbar
+        b = 18.678 * u.Unit('')
+        c = 257.14 * u.Celsius
+        d = 234.50 * u.Celsius
+
+        Psm = a * np.exp( (b-T/d) * (T/(c+T)) )
+        gm  = np.log(r * np.exp( (b-T/d) * (T/(c+T))) )
+        return   c * gm / (b - gm)
+
+    def P0(self,T,h):
+    ##############################
+    #
+    # Water Vapor Partial Pressure
+    #
+    #    Inputs:  T, dry-bulb temperature in Celsius
+    #             h, relative humidity in %
+    #
+    #    Output:  Water Vapor partial pressure in mbar
+    #
+    #    Source: ALMA memo 237 - Butler, B (1998)
+    #
+    ######################################################
+    
+        D    = self.dew(T, h/100 )
+        expo = 1.81E+00 + (1.727E+01 * D /(D + 237.3 * u.Celsius))
+        return  np.exp(expo) * u.mbar
+    
+    def pwv(self,h2o_scale=2.0):
+
+    #################################
+    #
+    # Precipitable Water Vapor
+    #
+    #    Parameter inputs:
+    #           temperature = dry-bulb temperature in Celsius
+    #           humidity    = relative humidity in %
+    #           Hh2o        = Water scale height in km (typically 1.5 - 2 )
+    #
+    #    Output: Precipitable Water Vapor in mm
+    #
+    #    Source: ALMA memo 237 - Butler, B (1998)
+    #
+    ########################################################
+
+        temperature = self.data['temperature'] * u.Celsius
+        humidity    = self.data['humidity'] * u.Unit('')
+        Hh2o        = h2o_scale*u.km
+        
+        amu      = 1.66053906660e-24 * u.g  # Atomic Mass Unit in g
+        mw       = 18 * amu                 # Water mole mass
+        rhol     = 1 * u.g / u.cm**3        # water density
+        constant = mw / ( rhol * c.k_B.cgs)
+        
+        num = constant * self.P0(temperature,humidity).cgs * Hh2o.to('cm')
+        den = temperature.to(u.Kelvin, equivalencies=u.temperature())
+
+        self.data.update({'PWV':(num/den).to('mm')})
+        self.MetaData.update({'H2O_scale_height':Hh2o})
+        
+        return  
