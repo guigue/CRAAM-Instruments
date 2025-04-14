@@ -12,7 +12,7 @@ from astropy import units as u
 from astropy import constants as c
 
 ############ Global Variables ##########
-__version__       = "2025-04-11T1610ART"
+__version__       = "2025-04-13T1000ART"
 __DATA_FILE__     = "hats_data_rbd.bin"
 __HUSEC_FILE__    = "hats_husec.bin"
 __RECORD_SIZE__   = 38
@@ -152,6 +152,8 @@ short_array       = collections.deque()
 #                            - sky dip method included
 #                     2025-04-08 - OAFA
 #                            - Class ws computes the Precipitable Water Vapor Content.
+#                     2025-04-13 - OAFA
+#                            - Added self.plot() to hats and ws classes.
 #
 ####################################################################################################################################
 
@@ -370,6 +372,7 @@ class hats(object):
         seconds_int  = int(seconds)
         seconds_frac = seconds - int(seconds)
         useconds     = int(seconds_frac * 1e6)
+
         return dt.datetime(year,month,day,hours,minutes,seconds_int,useconds)
 
     def getFFT(self,steps=32,window_size=128,recoffset=0,nrecords=-1,calibrated=True):
@@ -1265,3 +1268,37 @@ class ws(object):
         self.MetaData.update({'H2O_scale_height':Hh2o})
         
         return  
+
+    def plot(self,var='temperature'):
+
+        from matplotlib import pyplot as plt
+        from matplotlib import dates
+
+        ylabel = 'Temperature [°C]'
+        if (var == 'humidity'):
+            ylabel = 'Humidity [%]'
+        elif (var == 'pressure'):
+            ylabel = 'Pressure [hPa]'
+        elif ~(var =='pwv'):
+            self.pwv()
+            var = var.upper()
+            ylabel = 'PWV [mm]'
+
+        fig=plt.figure()
+        fig.set_size_inches(((25*u.cm).to(u.imperial.inch)).value,
+                            ((15*u.cm).to(u.imperial.inch)).value)
+        ax=fig.add_subplot(1,1,1)
+        pos=[0.1,0.1,0.85,0.85]
+        ax.set_position(pos)
+        ax.xaxis.set_major_formatter(dates.DateFormatter('%H:%M'))
+        ax.plot(self.data['time'],self.data[var],'-r')
+        ax.set_xlabel('UT')
+        ax.set_ylabel(ylabel)
+        if isinstance(self.MetaData['Date'],list):
+            dia=self.MetaData['Date'][0]
+        else:
+            dia=self.MetaData['Date']
+            
+        ax.set_title(dia)
+                         
+        return

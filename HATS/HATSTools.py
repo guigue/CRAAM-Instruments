@@ -9,11 +9,13 @@ from astropy import units as u
 from astropy import constants as c
 from astropy.time import Time
 import datetime as dt
+import numpy as np
 
 import HATS
+import OAFA
 
 ############ Global Variables ##########
-__version       = "2025-04-11T1530ART"
+__version       = "2025-04-11T1720ART"
 #######################################
 
 ##############################################
@@ -60,10 +62,114 @@ __version       = "2025-04-11T1530ART"
 #           default is False
 #
 ########################################################
+#
+# HATSSunCoord
+#
+#       Computes (ra,dec) & (alt,az) coordinates of the sun at OAFA
+#
+# Parameters:
+#       when: time of the coordinates calculation
+#             an astropy.time.Time object:
+#             default is now
+#
+# Example:
+#       sun_coord = HATSSunCoord()  : returns the current sun coordinates
+#       sun_coord = HATSSunCoord(when=Time('2025-10-12 17:30:35'))
+#
+########################################################
+#
+# HATSTransit
+#
+#       Computes sun transit at OAFA
+#
+# Parameters:
+#
+#       when: time of the coordinates calculation
+#             an astropy.time.Time object:
+#             default is now
+#       plotfig: True|False , default is True
+#       savefig: True| False , default is False
+#
+# Outputs
+#
+#       transit: a dictionary with time, azimuth and elevation coordinates
+#
+# Examples
+#
+#       transit=HATSTransit()  : computes a nd plots the transit for the current day
+#       transit=HATSTransit(when=Time('2025-04-11'))
+#
+#
+##########################################################################
+
 
 def HATSToolsversion():
 
     return __version
+
+def HATSSunCoord(when=Time.now()):
+
+    object='sun'
+    from astropy.coordinates import solar_system_ephemeris, EarthLocation, get_body, AltAz
+
+    with solar_system_ephemeris.set('jpl'):
+        radec=get_body(object,when,OAFA.Observatory_Coordinates())
+        aa=AltAz(location=OAFA.Observatory_Coordinates(),obstime=when)
+        altaz = radec.transform_to(aa)
+
+    return {'radec':radec,'altaz':altaz}
+
+def HATSTransit(when=Time.now(),plotfig=False,savefig=False):
+
+    from astropy import time
+    from matplotlib import pyplot as plt, dates
+    
+    object='sun'
+    year=when.datetime.year
+    month=when.datetime.month
+    day=when.datetime.day
+    az=[]
+    el=[]
+    t=[]
+    deltat = time.TimeDelta(15*u.minute)
+    time0 = Time(str(year)+'-'+str(month)+'-'+str(day)+' '+'00:00:00')
+    tt = time0 
+    while (tt.datetime.day == when.datetime.day): 
+        t.append(tt.datetime)
+        sun_coord=HATSSunCoord(when=tt)
+        az.append(sun_coord['altaz'].altaz.az.value)
+        el.append(sun_coord['altaz'].altaz.alt.value)
+        tt = tt + deltat
+
+    az = np.asarray(az)
+    el = np.asarray(el)
+    t  = np.asarray(t)
+
+    print('\n\n Maximum Elevation = {0:5.2f} deg at {1:02d}:{2:0d} UT +/- 7.5 min\n\n'.format(el.max(),
+                                                                                  t[el.argmax()].hour,
+                                                                                  t[el.argmax()].minute))
+                                                                         
+    if plotfig:
+        up = (el > 0)
+        fig,ax=plt.subplots(figsize=(10,7))
+        ax.plot(t[up],el[up],'-k')
+        ax.xaxis.set_major_formatter(dates.DateFormatter('%H:%m'))
+        ax.set_title('Apparent Elevation for '+ object + ' on ' + time0.strftime("%Y-%m-%d") + ' at OAFA')
+        ax.plot([t[el.argmax()],t[el.argmax()]],[0,el.max()+5],'--r')
+        ax.text(t[el.argmax()]+dt.timedelta(minutes=15),0,'Meridian Transit at: '+ t[el.argmax()].strftime("%H:%M")+r' UT $\pm$ 7.5 min')
+
+        if savefig:
+            fname = 'Transit-'+object+'-'+time0.strftime("%Y-%m-%d")+'.pdf'
+            plt.savefig(fname, dpi=None, facecolor='w', edgecolor='w',
+                        orientation='portrait', papertype=None, format='pdf',
+                        transparent=False, bbox_inches=None, pad_inches=0.1,
+                        frameon=None, metadata=None)
+
+
+    
+    return {'time':t,'azimuth':az,'elevation':el}
+
+    
 
 def HATSday(day=''):
     
@@ -81,7 +187,7 @@ def HATSday(day=''):
     lista = glob.glob(InputPath+'/hats-'+day+'T*')
     if lista == []:
         print('\n\n No data for '+ day+'\n\n')
-        return
+        return None,None
 
     print('\n\n {0:d} files found \n\n'.format(len(lista)))
     
