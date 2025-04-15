@@ -12,7 +12,7 @@ from astropy import units as u
 from astropy import constants as c
 
 ############ Global Variables ##########
-__version__       = "2025-04-13T1000ART"
+__version__       = "2025-04-15T2000ART"
 __DATA_FILE__     = "hats_data_rbd.bin"
 __HUSEC_FILE__    = "hats_husec.bin"
 __RECORD_SIZE__   = 38
@@ -26,6 +26,9 @@ short_array       = collections.deque()
 #
 # Usage:
 #   > export HATSXMLTABLES=/my/directory/with/HATS/XMLTABLES
+#   > export HATS_DATA_InputPath=/my/dir/with/HATS/data
+#   > export HATS_WS_InputPath=/my/dir/with/HATS/auxdata
+#   > export HATS_FFTProgram=/my/dir/with/binary/HATS_fft
 #   >>> import HATS
 #
 #   ### RBD data
@@ -1279,7 +1282,7 @@ class ws(object):
             ylabel = 'Humidity [%]'
         elif (var == 'pressure'):
             ylabel = 'Pressure [hPa]'
-        elif ~(var =='pwv'):
+        elif (var =='pwv'):
             self.pwv()
             var = var.upper()
             ylabel = 'PWV [mm]'
