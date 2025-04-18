@@ -9,11 +9,22 @@ import pdb
 import datetime as dt
 import pickle
 from scipy.optimize import curve_fit
+<<<<<<< HEAD
 from astropy import units as u
 from astropy import constants as c
 
-#######################################
+############ Global Variables ##########
 __version__       = "2025-04-15T2000ART"
+=======
+
+from CraamTools import contiguo
+from CraamTools import Opacity
+
+
+
+############ Global Variables ##########
+__version__       = "2024-12-17T23:316BRT"
+>>>>>>> 2acf7f4e8977fe6d2e1be974088038faa5cbca88
 __DATA_FILE__     = "hats_data_rbd.bin"
 __HUSEC_FILE__    = "hats_husec.bin"
 __RECORD_SIZE__   = 38
@@ -154,12 +165,15 @@ short_array       = collections.deque()
 #                     2024-10-10 - Sampa
 #                            - weather station data included here
 #                            - sky dip method included
+<<<<<<< HEAD
 #                     2025-04-08 - OAFA
 #                            - Class ws computes the Precipitable Water Vapor Content.
 #                     2025-04-13 - OAFA
 #                            - Added self.plot() to hats and ws classes.
+=======
 #                     2024-12-17 - Sampa
 #                            - Computes the PWV (simple formula)
+>>>>>>> 2acf7f4e8977fe6d2e1be974088038faa5cbca88
 #
 ####################################################################################################################################
 
