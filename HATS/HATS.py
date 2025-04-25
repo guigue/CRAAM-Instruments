@@ -752,14 +752,15 @@ class hats(object):
     def SkyDip(self):
 
         x, = np.where((self.aux.Data['opmode']==10))
-        c  = contiguo.contiguo(x)
+        c  = contiguo(x)
         time_interval = [self.rbd.Deconv['time'][x[0]],self.rbd.Deconv['time'][x[-1]]]
 
         elevation = []
         mVolts    = []
-    
+
         for i in np.arange(len(c)):
-            el = self.aux.Data['elevation'][x[c[i,0]]+2:x[c[i,1]]-2].mean()
+#            el = self.aux.Data['elevation'][x[c[i,0]]+2:x[c[i,1]]-2].mean()
+            el = self.aux.Data['elevation'][x[c[i,0]]+1:x[c[i,1]]].mean()
             xx = (self.rbd.Deconv['husec'] >= self.aux.Data['husec'][x[c[i,0]]]) & (self.rbd.Deconv['husec'] <= self.aux.Data['husec'][x[c[i,1]]])
             mV = self.rbd.Deconv['amplitude'][xx].mean()
             elevation.append(el)
@@ -781,15 +782,14 @@ class hats(object):
                         mVolts.pop(i)
                     i+=1
             except:
-                self.skydip = -99
-                return
+                par=np.zeros(3)-99
+                cov=np.zeros([3,3])
+                dfit=np.zeros(len(elevation))
+                break
 
-        if par[2] < 0:
-            self.skydip = -99
-            return
-        
         perr     = (np.sqrt(np.diag(cov)))
-        dfit     = self.skyModel(elevation,par[0],par[1],par[2])
+        if par[2] >= 0:
+            dfit     = self.skyModel(elevation,par[0],par[1],par[2])
 
         self.skydip = {'tau':par[2],'stau':perr[2],
                        'Toff':par[0],'sToff': perr[0],
