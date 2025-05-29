@@ -13,7 +13,7 @@ from astropy import units as u
 from astropy import constants as c
 
 #######################################
-__version__       = "2025-04-15T2000ART"
+__version__       = "2025-05-29T1712BST"
 __DATA_FILE__     = "hats_data_rbd.bin"
 __HUSEC_FILE__    = "hats_husec.bin"
 __RECORD_SIZE__   = 38
@@ -124,7 +124,7 @@ short_array       = collections.deque()
 #                                  g=HATS.hats('2021-12-13T1600')
 #                                  i=h+g
 #   plot()                       : Simple plot of data
-#                                  Returns the time axis
+#                                  Returns the time axis, object fig
 #   
 ####################################################################################################################################
 #   
@@ -823,7 +823,7 @@ class hats(object):
             
         ax.set_title(dia)
                          
-        return thats
+        return thats,fig
 
 
 class env(object):
