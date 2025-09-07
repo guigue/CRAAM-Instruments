@@ -993,6 +993,7 @@ class rbd(object):
         fhandler = open(fname,'rb')
         whole_data = np.fromfile(fhandler, dt_list,offset=offset,count=nrecords)     # raw Data, no calibration
         flag = whole_data['husec'] < int(MetaData['Hour'][:2])*36000000              # catch the interval with wrong husecs
+
         
         if np.version.full_version > '1.19':
             self.rData = np.delete(whole_data,flag,0)                                     # delete wrong records
@@ -1021,12 +1022,10 @@ class rbd(object):
                 dt_list.append((key, np.float64,value[0]))
                 conv_list.update({key:[value[6],value[5]]})
 
-                
         self.cData = np.ndarray(self.rData.shape[0],dtype=dt_list)
         for key in dt_list:
             self.cData[key[0]] = self.rData[key[0]] * conv_list[key[0]][0] + conv_list[key[0]][1]
             self.CalFac.update({key:{'Ordinate':conv_list[key[0]][1],'Slope':conv_list[key[0]][0]}})
-
 
         if 'N_Records_Read' in self.MetaData:
             h.rbd.MetaData['N_Records_Read'] = whole_data.shape[0]

@@ -8,14 +8,14 @@ from scipy.optimize import curve_fit
 from astropy import units as u
 from astropy import constants as c
 from astropy.time import Time
-import datetime as dt
 import numpy as np
+from astroplan import Observer
 
 import HATS
 import OAFA
 
 ############ Global Variables ##########
-__version       = "2025-04-11T1720ART"
+__version       = "2025-07-26T14:44ART"
 #######################################
 
 ##############################################
@@ -107,6 +107,32 @@ def HATSToolsversion():
 
     return __version
 
+def HATSSun_Meridian_Transit(time0UT,verbose=False):
+
+    obs = Observer(location=OAFA.Observatory_Coordinates())
+    sun_rise = obs.sun_rise_time(time0UT,which='next')
+    sun_set  = obs.sun_set_time(time0UT,which='next')
+    dTime_transit = sun_set-sun_rise
+    sun_meridian_transit = sun_rise + dTime_transit/2
+
+    if verbose:
+      print('\n\n Sun Rise = {0.iso}, Meridian Transit = {1.iso}, Sun Set = {2.iso}\n\n'.format(sun_rise,
+                                                                                            sun_meridian_transit,
+                                                                                            sun_set))
+
+    return sun_meridian_transit
+  
+def HATSFlip(DeltaTFlip = 10*u.minute,verbose=False):
+
+    when=Time.now()
+    time0UT = Time(when.iso[0:10]+' 00:00')
+    hats_time_flip = HATSSun_Meridian_Transit(time0UT) - dt.timedelta(seconds=DeltaTFlip.to('second').value)
+
+    if verbose:
+      print('\n\n HATS Flip at {0.iso} UT {1} before sun transit time\n\n'.format(hats_time_flip,DeltaTFlip))
+
+    return hats_time_flip
+  
 def HATSSunCoord(when=Time.now()):
 
     object='sun'
