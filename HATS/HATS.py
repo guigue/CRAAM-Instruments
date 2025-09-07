@@ -13,7 +13,7 @@ from astropy import units as u
 from astropy import constants as c
 
 #######################################
-__version__       = "2025-04-15T2000ART"
+__version__       = "2025-05-29T1712BST"
 __DATA_FILE__     = "hats_data_rbd.bin"
 __HUSEC_FILE__    = "hats_husec.bin"
 __RECORD_SIZE__   = 38
@@ -124,7 +124,7 @@ short_array       = collections.deque()
 #                                  g=HATS.hats('2021-12-13T1600')
 #                                  i=h+g
 #   plot()                       : Simple plot of data
-#                                  Returns the time axis
+#                                  Returns the time axis, object fig
 #   
 ####################################################################################################################################
 #   
@@ -752,14 +752,15 @@ class hats(object):
     def SkyDip(self):
 
         x, = np.where((self.aux.Data['opmode']==10))
-        c  = contiguo.contiguo(x)
+        c  = contiguo(x)
         time_interval = [self.rbd.Deconv['time'][x[0]],self.rbd.Deconv['time'][x[-1]]]
 
         elevation = []
         mVolts    = []
-    
+
         for i in np.arange(len(c)):
-            el = self.aux.Data['elevation'][x[c[i,0]]+2:x[c[i,1]]-2].mean()
+#            el = self.aux.Data['elevation'][x[c[i,0]]+2:x[c[i,1]]-2].mean()
+            el = self.aux.Data['elevation'][x[c[i,0]]+1:x[c[i,1]]].mean()
             xx = (self.rbd.Deconv['husec'] >= self.aux.Data['husec'][x[c[i,0]]]) & (self.rbd.Deconv['husec'] <= self.aux.Data['husec'][x[c[i,1]]])
             mV = self.rbd.Deconv['amplitude'][xx].mean()
             elevation.append(el)
@@ -781,15 +782,14 @@ class hats(object):
                         mVolts.pop(i)
                     i+=1
             except:
-                self.skydip = -99
-                return
+                par=np.zeros(3)-99
+                cov=np.zeros([3,3])
+                dfit=np.zeros(len(elevation))
+                break
 
-        if par[2] < 0:
-            self.skydip = -99
-            return
-        
         perr     = (np.sqrt(np.diag(cov)))
-        dfit     = self.skyModel(elevation,par[0],par[1],par[2])
+        if par[2] >= 0:
+            dfit     = self.skyModel(elevation,par[0],par[1],par[2])
 
         self.skydip = {'tau':par[2],'stau':perr[2],
                        'Toff':par[0],'sToff': perr[0],
@@ -823,7 +823,7 @@ class hats(object):
             
         ax.set_title(dia)
                          
-        return thats
+        return thats,fig
 
 
 class env(object):
