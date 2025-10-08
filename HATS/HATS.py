@@ -13,7 +13,7 @@ from astropy import units as u
 from astropy import constants as c
 
 #######################################
-__version__       = "2025-05-29T1712BST"
+__version__       = "2025-10-08T1427BST"
 __DATA_FILE__     = "hats_data_rbd.bin"
 __HUSEC_FILE__    = "hats_husec.bin"
 __RECORD_SIZE__   = 38
@@ -26,7 +26,7 @@ short_array       = collections.deque()
 # HATS: A python class to read and deconvolve HATS RBD and AUX data.
 #
 # Usage:
-#   > export HATSXMLTABLES=/my/directory/with/HATS/XMLTABLES
+#   > export HATSXMLTABLES=/my/directory/with/HATS/XMLTables
 #   > export HATS_DATA_InputPath=/my/dir/with/HATS/data
 #   > export HATS_WS_InputPath=/my/dir/with/HATS/auxdata
 #   > export HATS_FFTProgram=/my/dir/with/binary/HATS_fft
@@ -111,20 +111,21 @@ short_array       = collections.deque()
 #
 #   METHODS
 #
-#   getTimeAxis(husec,MetaData)  : returns a datetime ndarray
-#                                  Examples : taux=h.getTimeAxis(h.aux.Data['husec'],h.MetaData)  # for auxiliary data
+#   getTimeAxis(husec,MetaData)      : returns a datetime ndarray
+#                                      Examples : taux=h.getTimeAxis(h.aux.Data['husec'],h.MetaData)  # for auxiliary data
 #                                             trbd=h.getTimeAxis(h.rbd.rData['husec'],h.MetaData) # for rbd data
 #
-#   check()                      : checks data integrity
-#   getFFT()                     : Deconvolves RBD data, creating Deconv structure
+#   check()                          : checks data integrity
+#   getFFT()                         : Deconvolves RBD data, creating Deconv structure
 #   extract(tr,save=False,pklname={file_name}): input a time range tr=[datetime(initial),datetime(end)] and returns a HATS object for the time range.
 #   extrac_scans(stype='rigt_ascension' | 'declination')
-#                                : Extract scans from a hats class object. Returns a list of dictionaries with the scans.
-#   __add__                      : h=HATS.hats('2021-12-13T1500')
-#                                  g=HATS.hats('2021-12-13T1600')
-#                                  i=h+g
-#   plot()                       : Simple plot of data
-#                                  Returns the time axis, object fig
+#                                    : Extract scans from a hats class object. Returns a list of dictionaries with the scans.
+#   __add__                          : h=HATS.hats('2021-12-13T1500')
+#                                      g=HATS.hats('2021-12-13T1600')
+#                                      i=h+g
+#   plot()                           : Simple plot of data
+#                                      Returns the time axis, object fig
+#   toCSV(rootname={root_file_name}) : Creates CSV files with the data arrays
 #   
 ####################################################################################################################################
 #   
@@ -154,12 +155,15 @@ short_array       = collections.deque()
 #                     2024-10-10 - Sampa
 #                            - weather station data included here
 #                            - sky dip method included
+#                     2024-12-17 - Sampa
+#                            - Computes the PWV (simple formula)
 #                     2025-04-08 - OAFA
 #                            - Class ws computes the Precipitable Water Vapor Content.
 #                     2025-04-13 - OAFA
 #                            - Added self.plot() to hats and ws classes.
-#                     2024-12-17 - Sampa
-#                            - Computes the PWV (simple formula)
+#                     2025-10-08 - Sampa
+#                            - Corrected self.extract() for when Data arrays are empty
+#                            - Added toCSV()
 #
 ####################################################################################################################################
 
@@ -343,7 +347,39 @@ class hats(object):
             print("\n\n  {0:s} : wrong file \n\n".format(fname))
             
         return
-    
+
+    def toCSV(self,rootname=None):
+
+        import pandas as pd
+        if not rootname:
+            rootname = 'hats'
+
+        if (self.rbd.rData.size > 0):
+            csvname = rootname+'-rbd_adcu.csv'
+            df = pd.DataFrame(self.rbd.rData)
+            df.to_csv(csvname,sep=',',index=False)
+            del df
+
+        if (self.rbd.cData.size > 0):
+            csvname = rootname+'-rbd_cal.csv'
+            df = pd.DataFrame(self.rbd.cData)
+            df.to_csv(csvname,sep=',',index=False)
+            del df
+
+        if (self.rbd.Deconv.size > 0):
+            df = pd.DataFrame(self.rbd.Deconv)
+            csvname = rootname+'-deconv.csv'
+            df.to_csv(csvname,sep=',',index=False)
+            del df
+
+        if (self.aux.Data.size > 0):
+            df = pd.DataFrame(self.aux.Data)
+            csvname = rootname+'-rbd_adcu.csv'
+            df.to_csv(csvname,sep=',',index=False)
+            del df
+            
+        return
+            
     def getTimeAxis(self,husec,MetaData):
         """
 
@@ -449,24 +485,27 @@ class hats(object):
             
         time_range_husec = [(time_range[0].timestamp() - ts0) * 10000, (time_range[1].timestamp() - ts0) * 10000]
 
-        X = (self.rbd.rData['husec'] >= time_range_husec[0] ) & (self.rbd.rData['husec'] <= time_range_husec[1])
-        _rData_  = np.copy(self.rbd.rData[X])
-        _cData_  = np.copy(self.rbd.cData[X])
+        if (self.rbd.rData.size >0):
+            X = (self.rbd.rData['husec'] >= time_range_husec[0] ) & (self.rbd.rData['husec'] <= time_range_husec[1])
+            _rData_  = np.copy(self.rbd.rData[X])
+            _cData_  = np.copy(self.rbd.cData[X])
+            _temp_.rbd.rData  = _rData_
+            _temp_.rbd.cData  = _cData_
 
-        X = (self.env.Data['husec'] >= time_range_husec[0] ) & (self.env.Data['husec'] <= time_range_husec[1])
-        _eData_  = np.copy(self.env.Data[X])
+        if (self.env.Data.size > 0):
+            X = (self.env.Data['husec'] >= time_range_husec[0] ) & (self.env.Data['husec'] <= time_range_husec[1])
+            _eData_  = np.copy(self.env.Data[X])
+            _temp_.env.Data   = _eData_
 
-        X = (self.rbd.Deconv['husec'] >= time_range_husec[0] ) & (self.rbd.Deconv['husec'] <= time_range_husec[1])
-        _Deconv_ = np.copy(self.rbd.Deconv[X])
-        
-        X = (self.aux.Data['husec'] >= time_range_husec[0] ) & (self.aux.Data['husec'] <= time_range_husec[1])
-        _Data_ = self.aux.Data[X]
+        if (self.rbd.Deconv.size > 0):
+            X = (self.rbd.Deconv['husec'] >= time_range_husec[0] ) & (self.rbd.Deconv['husec'] <= time_range_husec[1])
+            _Deconv_ = np.copy(self.rbd.Deconv[X])
+            _temp_.rbd.Deconv = _Deconv_
 
-        _temp_.rbd.rData  = _rData_
-        _temp_.rbd.cData  = _cData_
-        _temp_.rbd.Deconv = _Deconv_
-        _temp_.env.Data   = _eData_
-        _temp_.aux.Data   = _Data_
+        if (self.aux.Data.size > 0):
+            X = (self.aux.Data['husec'] >= time_range_husec[0] ) & (self.aux.Data['husec'] <= time_range_husec[1])
+            _Data_ = self.aux.Data[X]
+            _temp_.aux.Data   = _Data_
 
         if save:
             with open(pklname,'wb') as file:
@@ -993,8 +1032,7 @@ class rbd(object):
         fhandler = open(fname,'rb')
         whole_data = np.fromfile(fhandler, dt_list,offset=offset,count=nrecords)     # raw Data, no calibration
         flag = whole_data['husec'] < int(MetaData['Hour'][:2])*36000000              # catch the interval with wrong husecs
-
-        
+             
         if np.version.full_version > '1.19':
             self.rData = np.delete(whole_data,flag,0)                                     # delete wrong records
         else:
