@@ -15,7 +15,7 @@ import HATS
 import OAFA
 
 ############ Global Variables ##########
-__version       = "2025-07-26T14:44ART"
+__version       = "2025-10-09T19:47BST"
 #######################################
 
 ##############################################
@@ -224,11 +224,16 @@ def HATSday(day=''):
         horas.append(fn[-8:-4])
     
     h = HATS.hats(day+' '+horas[0])
+    d = np.copy(h.rbd.Deconv,subok=True)
     for hh in horas[1:]:
-        h=h+HATS.hats(day+' '+hh)
+        print("'hats-"+ day + "T"+hh+".rbd'")
+        h=HATS.hats(day+' '+hh)
+        t=np.copy(h.rbd.Deconv,subok=True)
+        d=np.concatenate((d,t))
 
-    thats = h.getTimeAxis(h.rbd.Deconv['husec'],h.MetaData)
-
+    del h
+    del t
+    
     fig=plt.figure()
     fig.set_size_inches(((25*u.cm).to(u.imperial.inch)).value,
                         ((15*u.cm).to(u.imperial.inch)).value)
@@ -236,12 +241,12 @@ def HATSday(day=''):
     pos=[0.1,0.1,0.85,0.85]
     ax.set_position(pos)
     ax.xaxis.set_major_formatter(dates.DateFormatter('%H:%M'))
-    ax.plot(thats,h.rbd.Deconv['amplitude'],'-r')
+    ax.plot(d['time'],d['amplitude'],'-r')
     ax.set_xlabel('UT')
     ax.set_ylabel('mV')
     ax.set_title(day)
                          
-    return h,thats
+    return d
             
 def HATSmonitor(intervalo=20,savefig=False):
     
