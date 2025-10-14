@@ -224,6 +224,8 @@ def HATSday(day=''):
         horas.append(fn[-8:-4])
     
     h = HATS.hats(day+' '+horas[0])
+    print("'hats-"+ day + "T"+horas[0]+".rbd'")
+    
     d = np.copy(h.rbd.Deconv,subok=True)
     for hh in horas[1:]:
         print("'hats-"+ day + "T"+hh+".rbd'")

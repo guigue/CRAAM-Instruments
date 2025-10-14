@@ -13,7 +13,7 @@ from astropy import units as u
 from astropy import constants as c
 
 #######################################
-__version__       = "2025-10-08T1427BST"
+__version__       = "2025-10-13T1949BST"
 __DATA_FILE__     = "hats_data_rbd.bin"
 __HUSEC_FILE__    = "hats_husec.bin"
 __RECORD_SIZE__   = 38
@@ -1210,9 +1210,6 @@ class ws(object):
                     Humidity.append(float(s[3].split(sep='=')[1][:-1]))
                     temp = s[4].split(sep='=')[1]
                     Pressure.append(float(temp[:temp.find('H')]))
-                    PWV.append(Opacity.pwv( temperature=Temperature[-1]*u.Celsius,
-                                            humidity=Humidity[-1]*u.Unit(''),
-                                            Hh2o=2.0*u.km).value)
                 except:
 #                    pdb.set_trace()
                     pass
@@ -1222,8 +1219,10 @@ class ws(object):
         self.data.update({'time':np.asarray(DateTime)           ,
                           'temperature':np.asarray(Temperature) ,
                           'humidity':np.asarray(Humidity)       ,
-                          'pressure':np.asarray(Pressure)       ,
-                          'pwv':np.asarray(PWV)})    
+                          'pressure':np.asarray(Pressure)
+                          })
+                          
+        self.pwv()
         return
 
     def to_csv(self):
@@ -1315,7 +1314,7 @@ class ws(object):
 
         self.data.update({'PWV':(num/den).to('mm')})
         self.MetaData.update({'H2O_scale_height':Hh2o})
-        
+
         return  
 
     def plot(self,var='temperature'):
