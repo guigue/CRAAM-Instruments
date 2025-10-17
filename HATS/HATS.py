@@ -1,6 +1,7 @@
 import os
 import xml.etree.ElementTree as xmlet
 import numpy as np
+import pandas as pd
 from astropy.io import fits
 from astropy import units as u
 import collections
@@ -13,7 +14,7 @@ from astropy import units as u
 from astropy import constants as c
 
 #######################################
-__version__       = "2025-10-13T1949BST"
+__version__       = "2025-10-17T1145BST"
 __DATA_FILE__     = "hats_data_rbd.bin"
 __HUSEC_FILE__    = "hats_husec.bin"
 __RECORD_SIZE__   = 38
@@ -105,6 +106,9 @@ short_array       = collections.deque()
 #                                Tenv                 : External temperature
 #
 #   WS
+#   data: an ndarray with temperature, pressure, humidity, pwv and optical depth
+#         The pwv is computed using a formula from Buttle (1998), ALMA memo
+#         The optical depth at zenith is computed using a mdeol derived from MODTRAN simulations.
 #   
 #
 ####################################################################################################################################
@@ -126,6 +130,10 @@ short_array       = collections.deque()
 #   plot()                           : Simple plot of data
 #                                      Returns the time axis, object fig
 #   toCSV(rootname={root_file_name}) : Creates CSV files with the data arrays
+#   toDataFrame()                    : converts every ndarray in a separate pandas DataFrame
+#                                      returns: raw_df, cal_df, deconv_df, aux_df wiht time/husec as index
+#   WS methods
+#   toDataFrame()                    : returns a pandas DataFrame with time as index
 #   
 ####################################################################################################################################
 #   
@@ -379,6 +387,24 @@ class hats(object):
             del df
             
         return
+
+    def toDataFrame(self):
+
+        if (self.rbd.rData.size > 0):
+            raw_df= pd.DataFrame(self.rbd.rData[['sample','sec','ms','golay','chopper','temp_hics','temp_env','temp_golay']],index=self.rbd.rData['husec'])
+
+        if (self.rbd.cData.size > 0):
+            cal_df = pd.DataFrame(self.rbd.cData[['golay','chopper','temp_hics','temp_env','temp_golay']],index=self.rbd.rData['husec'])
+
+        if (self.rbd.Deconv.size > 0):
+            deconv_df = pd.DataFrame(self.rbd.Deconv[['amplitude']],index=[self.rbd.Deconv['husec'],self.rbd.Deconv['time']])
+
+        if (self.aux.Data.size > 0):
+            aux_df = pd.DataFrame(self.aux.Data[['jd','sid','elevation','azimuth','right_ascension','declination','ra_rate','dec_rate','object','opmode']],
+                                   index=[self.aux.Data['husec'],self.aux.Data['time']])
+            
+        return raw_df,cal_df,deconv_df,aux_df
+
             
     def getTimeAxis(self,husec,MetaData):
         """
@@ -1223,6 +1249,7 @@ class ws(object):
                           })
                           
         self.pwv()
+        self.tau()
         return
 
     def to_csv(self):
@@ -1282,7 +1309,31 @@ class ws(object):
         D    = self.dew(T, h/100 )
         expo = 1.81E+00 + (1.727E+01 * D /(D + 237.3 * u.Celsius))
         return  np.exp(expo) * u.mbar
-    
+
+    def tau(self):
+
+    #################################
+    #
+    # Optical Depth to Zenith
+    #
+    #    Parameter input:
+    #           pwv : Precipitable water vapor
+    #
+    #    Output:
+    #           tau: a new column with expected optical depth
+    #
+    #    Model: See ~/IR/MODTRAN6/HATS_Opacity.py
+    #
+    ########################################################
+
+        slope = 0.25173594 / u.mm
+        intercept = 0.45613616 * u.mm/u.mm
+
+        self.data.update({'tau':self.data['PWV']*slope+intercept})
+        self.MetaData.update({'tau_model':{'slope':slope,'intercept':intercept}})
+
+        return
+        
     def pwv(self,h2o_scale=2.0):
 
     #################################
@@ -1317,6 +1368,18 @@ class ws(object):
 
         return  
 
+    def toDataFrame(self):
+
+        df = pd.DataFrame({})
+
+        for k in self.data.keys():
+            if (k != 'time'):
+                df[k]=self.data[k]
+
+        df.index = self.data['time']
+
+        return df
+    
     def plot(self,var='temperature'):
 
         from matplotlib import pyplot as plt
