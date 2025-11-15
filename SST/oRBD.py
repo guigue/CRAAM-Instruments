@@ -689,7 +689,7 @@ class RBD(object):
             _fits_cols_.append(_c_)
 
         _coldefs_ = fits.ColDefs(_fits_cols_)
-        pdb.set_trace()
+
         _tbhdu_   = fits.BinTableHDU.from_columns(_coldefs_)
         # About the units
         _tbhdu_.header.append(('comment','Time is in hundred of microseconds (Hus) since 0 UT',''))

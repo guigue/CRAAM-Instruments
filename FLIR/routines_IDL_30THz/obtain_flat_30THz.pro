@@ -69,38 +69,17 @@ PRO  obtain_flat_30THz, indir=indir, telescope=telescope
 
     ;------------------------------------------------------------
     ;Busca imagenes de trabajo presentes en el directorio
-    estaimag=file_search(indir+'*.fts', COUNT=count)
+    estaimag=file_search(indir+'*.fits', COUNT=count)
+    print,count
     if count ne 0 then begin
         tipo='fits'
-        estaimag=FINDFILE(dirimag+'*.fts', COUNT=count)
+        estaimag=FINDFILE(indir+'*.fits', COUNT=count)
         estaimag=estaimag(SORT(estaimag))
         Idummy=FLOAT(READFITS(estaimag(0), HeaderFile, /Silent))
         dateobs= sxpar(HeaderFile, 'DATE-OBS')
 
         ;Define nombre del archivo Flat de salida
         nombre=STRMID(dateobs,0,4)+STRMID(dateobs,5,2)+STRMID(dateobs,8,2)
-    endif
-
-    estaimag=file_search(indir+'*.fpf', COUNT=count)
-    if count ne 0 then begin
-        tipo='fpf'
-        estaimag=file_search(indir+'*.fpf', COUNT=count)
-        estaimag=estaimag(SORT(estaimag))
-        fpf = read_fpf(estaimag(0))
-        año=STRTRIM(STRING(fpf.date_year),2)
-        mes=STRTRIM(STRING(fpf.date_month),2)
-        if strlen(mes)eq 1 then mes='0'+ mes
-        dia=STRTRIM(STRING(fpf.date_day),2)
-        if strlen(dia)eq 1 then dia='0'+ dia
-
-        ;Define nombre del archivo Flat de salida
-        nombre=telescope+'_'+año+'-'+mes+'-'+dia+'_FLAT'
-
-    endif
-
-    if tipo eq 'nada' then begin
-        print, 'ERROR, no se encontraron imagenes'
-        goto, final
     endif
 
 ;-----------------------------------------------------------------------------
