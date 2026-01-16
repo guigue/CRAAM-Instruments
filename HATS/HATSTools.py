@@ -363,3 +363,4 @@ def HATSws(savefig=False):
                     frameon=None, metadata=None)
 
     return ws
+

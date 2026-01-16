@@ -6,6 +6,10 @@ wavelet/__pycache__
 Gaunt/__pycache__
 *~ 
 *py[cod]
+*save
+*whl
+*fits
+*fit
 
 ## C++ from https://github.com/github/gitignore/blob/main/C%2B%2B.gitignore 
 # Prerequisites
