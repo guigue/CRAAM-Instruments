@@ -15,7 +15,7 @@ from astropy.utils import iers
 import CASLEO
 
 ##################################
-Version = '20200702T1847BRT'     #
+Version = '2026-03-16T12:24BRT'     #
 ##################################
 
 #######################################################
@@ -47,6 +47,7 @@ Version = '20200702T1847BRT'     #
 # There is a flag temperature=True to get temperature instead of SFU.
 #
 # Written by: @guiguesp - 2020-04-28 under quarrantine... :-(
+#                         2026-03-16 A correction when the FITS file is created (!)
 #
 ##########################################################################
 
@@ -415,7 +416,7 @@ class Flux(object):
                                      unit   = 'arc minutes' ,
                                      bscale = 1.0     ,
                                      bzero  = 0       ,
-                                     array  = self.MBSol['off']),
+                                     array  = self.MBSol['el']),
                          fits.Column(name   = 'ULOFF' ,
                                      format = '1E'    ,
                                      unit   = ' '     ,

@@ -70,6 +70,7 @@ PRO  obtain_flat_30THz, indir=indir, telescope=telescope
     ;------------------------------------------------------------
     ;Busca imagenes de trabajo presentes en el directorio
     estaimag=file_search(indir+'*.fits', COUNT=count)
+    
     print,count
     if count ne 0 then begin
         tipo='fits'
@@ -91,6 +92,7 @@ PRO  obtain_flat_30THz, indir=indir, telescope=telescope
 
     ;------------------------------------------------------------
     ;Comienza iteración
+    
     WHILE indice lt cantimag DO BEGIN
 
        ;---------------------------------------------
@@ -101,10 +103,12 @@ PRO  obtain_flat_30THz, indir=indir, telescope=telescope
             Idummy=fpf.data
 
        endif else begin
-            flagformatofpf=0
-            Idummy=FLOAT(READFITS(estaimag(aleatorio(indice2)), HeaderFile, /Silent))
-            Idummy= Idummy-MIN(Idummy)
-            Idummy= Idummy/MAX(Idummy)
+          flagformatofpf=0
+          fitsname = estaimag(indice2)
+          ;Idummy=FLOAT(READFITS(estaimag(aleatorio(indice2)), HeaderFile, /Silent))
+          Idummy=FLOAT(READFITS(fitsname, HeaderFile, /Silent))
+          Idummy= Idummy-MIN(Idummy)
+          Idummy= Idummy/MAX(Idummy)
        endelse
        ;---------------------------------------------
         ;Calcula ofsett del centro de la imagen
@@ -137,6 +141,8 @@ PRO  obtain_flat_30THz, indir=indir, telescope=telescope
         ;      P[4]   Ellipse rotation angle (radians) if TILT keyword set
        ;---------------------------------------------
        ;si el valor del centro del disco solar obtenido esta dentro de ciertos límites, lo considera valido
+        print,"Fits file: ",fitsname,",  Radius = ",parms[0]," Center = (",parms[2],parms[3],")"
+        
         if parms(2) gt 100 and parms(2) lt 539 and parms(3) gt 100 and parms(3) lt 379 then begin
             ;---------------------------------------------
             ;se guarda en desplazamiento del centro de la imagen considerada
@@ -165,7 +171,8 @@ PRO  obtain_flat_30THz, indir=indir, telescope=telescope
         ;actualiza indices
         indice2=indice2+1
         if indice2 ge cantimag then indice2=0
-       wait, 0.1
+                                ;wait, 0.1
+        
     ENDWHILE
 
 
@@ -196,11 +203,10 @@ PRO  obtain_flat_30THz, indir=indir, telescope=telescope
     seed = 1001L  ;elige otra secuencia aleatoria
     indice=0
     indice2=0
-
+    
     ;------------------------------------------------------------
     ;Genera un indice aleatorio de las imagenes del set total
     aleatorio=FIX(randomu(seed,count) * count)
-
 
     ;------------------------------------------------------------
     ;Comienza iteración
@@ -214,9 +220,10 @@ PRO  obtain_flat_30THz, indir=indir, telescope=telescope
             Idummy=Idummy/Iflat2
 
        endif else begin
-            Idummy=FLOAT(READFITS(estaimag(aleatorio(indice2)), HeaderFile, /Silent))
-            Idummy= Idummy-MIN(Idummy)
-            Idummy= Idummy/MAX(Idummy)
+          ;Idummy=FLOAT(READFITS(estaimag(aleatorio(indice2)), HeaderFile, /Silent))
+          Idummy=FLOAT(READFITS(estaimag(indice2), HeaderFile, /Silent))
+          Idummy= Idummy-MIN(Idummy)
+          Idummy= Idummy/MAX(Idummy)
        endelse
        ;---------------------------------------------
         ;Calcula ofsett del centro de la imagen

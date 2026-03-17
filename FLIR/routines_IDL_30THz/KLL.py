@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import scipy.ndimage as ndi # For potential future smoothing, though not in original
 import pdb
 
-def mk_flat(images, thresh, offsets=None, niter=10, show=False):
+def mk_flat(images, thresh, offsets=None, niter=10, Show=False):
     """
     Make a flat field image using a set of spatially displaced data images.
     Implements the method of Kuhn, Lin, and Loranz, Pub. Astron.
@@ -107,7 +107,7 @@ def mk_flat(images, thresh, offsets=None, niter=10, show=False):
             logj = np.zeros((nrows, ncols), dtype=float)
             valid_j = masks[:, :, j]
             logj[valid_j] = np.log(images[:, :, j][valid_j])
-
+            
             # --- Process (Image i unshifted, Image j shifted) ---
             # IDL slicing: (dx>0):ncols-1+(0<dx) for X-dim
             # This is a bit tricky to translate directly because IDL's
@@ -131,11 +131,11 @@ def mk_flat(images, thresh, offsets=None, niter=10, show=False):
             slice_j_x = slice(max(0, -dx), min(ncols, ncols - dx))
 
             # Extract log values and masks for overlapping regions
-            sum_val = logi[slice_i_y, slice_i_x]
+            sum_val = np.copy(logi[slice_i_y, slice_i_x])
+            
             mask_i_overlap = masks[slice_i_y, slice_i_x, i]
-
             sum_val -= logj[slice_j_y, slice_j_x]
-            mask_j_overlap = masks[slice_j_y, slice_j_x, j]
+            mask_j_overlap = np.copy(masks[slice_j_y, slice_j_x, j])
 
             # Combine masks: only valid if data in *both* images is valid in the overlap
             combined_mask_ij = mask_i_overlap & mask_j_overlap
@@ -151,6 +151,7 @@ def mk_flat(images, thresh, offsets=None, niter=10, show=False):
             # --- Process (Image j unshifted, Image i shifted) ---
             # Now, for the second pass, we swap roles, so image j is unshifted
             # and image i is shifted by (-dx, -dy) relative to j's frame.
+
             dx_prime = -dx # The shift for i relative to j's frame
             dy_prime = -dy
 
@@ -161,30 +162,31 @@ def mk_flat(images, thresh, offsets=None, niter=10, show=False):
             # Slice for Image i (shifted to align with j)
             slice_i_prime_y = slice(max(0, -dy_prime), min(nrows, nrows - dy_prime))
             slice_i_prime_x = slice(max(0, -dx_prime), min(ncols, ncols - dx_prime))
-
-            sum_val_prime = logj[slice_j_prime_y, slice_j_prime_x]
+            
+            sum_val_prime = np.copy(logj[slice_j_prime_y, slice_j_prime_x])
             mask_j_overlap_prime = masks[slice_j_prime_y, slice_j_prime_x, j]
-
+            
             sum_val_prime -= logi[slice_i_prime_y, slice_i_prime_x]
             mask_i_overlap_prime = masks[slice_i_prime_y, slice_i_prime_x, i]
-
+            
             combined_mask_ji = mask_j_overlap_prime & mask_i_overlap_prime
-            sum_val_prime_masked = sum_val_prime * combined_mask_ji.astype(float)
-
+            sum_val_prime_masked = sum_val_prime * combined_mask_ji #* combined_mask_ji.astype(float)
             karray[slice_j_prime_y, slice_j_prime_x] += sum_val_prime_masked
             numarray[slice_j_prime_y, slice_j_prime_x] += combined_mask_ji.astype(int)
-
+            
     # Finalize K array
     valid = numarray > 0
     karray[valid] = karray[valid] / numarray[valid]
 
-    if show:
+    if Show:
         # Display initial karray (IDL: TVSCL,karray)
         # This is optional for debugging/visualization
         plt.figure(figsize=(8, 6))
         plt.imshow(karray, origin='lower', cmap='gray')
         plt.title("Initial K array (Before Iterations)")
         plt.colorbar(label="Log Flat Field Difference")
+        uinput = input(" ")
+        print(f"Continue, {uinput}")
         plt.show()
 
     # --- Now iterate to a flat ---
@@ -252,12 +254,16 @@ def mk_flat(images, thresh, offsets=None, niter=10, show=False):
         change = np.std(newflat - flat) # IDL: STDEV(newflat - flat)
         flat = newflat
 
+        if Show:
         # Display intermediate flat (IDL: TVSCL,flat)
-        # plt.figure(figsize=(8, 6))
-        # plt.imshow(flat, origin='lower', cmap='gray')
-        # plt.title(f"Flat field after iteration {iter_num}")
-        # plt.colorbar(label="Log Flat Field")
-        # plt.show() # Uncomment to see each iteration's progress
+            plt.figure(figsize=(8, 6))
+            plt.imshow(flat, origin='lower', cmap='gray')
+            plt.title(f"Flat field after iteration {iter_num}")
+            plt.colorbar(label="Log Flat Field")
+            plt.show() # Uncomment to see each iteration's progress
+            uinput = input(" ")
+            print(f"Continue, {uinput}")
+            plt.show()
 
         print(f'{iter_num}, {change:.6f}')
 

@@ -78,38 +78,38 @@ FOR i=0,nimages-2 DO BEGIN
 		logj = REPLICATE(0.,ncols,nrows)
                 logj(valid) = ALOG(tmp(valid))
 
-; Identify pixel combinations with valid data in both images.
-; Allow for pixels that are thresholded out.
-; First, the unshifted I image and the shifted J image.
-		sum  = logi( (dx>0):ncols-1+(0<dx), (dy>0):nrows-1+(0<dy) )
-		mask = masks( (dx>0):ncols-1+(0<dx), (dy>0):nrows-1+(0<dy), i )
+                ; Identify pixel combinations with valid data in both images.
+                ; Allow for pixels that are thresholded out.
+                ; First, the unshifted I image and the shifted J image.
+                sum  = logi( (dx>0):ncols-1+(0<dx), (dy>0):nrows-1+(0<dy) )
+                mask = masks( (dx>0):ncols-1+(0<dx), (dy>0):nrows-1+(0<dy), i )
 		sum  = sum - logj( (-dx>0):ncols-1-(dx>0), (-dy>0):nrows-1-(dy>0) )
 		mask = mask < masks( (-dx>0):ncols-1-(dx>0), (-dy>0):nrows-1-(dy>0), j )
 		sum = sum * mask
 		karray( (dx>0):ncols-1+(0<dx), (dy>0):nrows-1+(0<dy) ) = karray( (dx>0):ncols-1+(0<dx), (dy>0):nrows-1+(0<dy) ) + sum
-		numarray( (dx>0):ncols-1+(0<dx), (dy>0):nrows-1+(0<dy) ) = numarray( (dx>0):ncols-1+(0<dx), (dy>0):nrows-1+(0<dy) ) + mask
+                numarray( (dx>0):ncols-1+(0<dx), (dy>0):nrows-1+(0<dy) ) = numarray( (dx>0):ncols-1+(0<dx), (dy>0):nrows-1+(0<dy) ) + mask
 
-; Now the unshifted J image and the shifted I image.
+                ; Now the unshifted J image and the shifted I image.
 		dx = -dx
-		dy = -dy
+                dy = -dy
                 sum  = logj( (dx>0):ncols-1+(0<dx), (dy>0):nrows-1+(0<dy) )
                 mask = masks( (dx>0):ncols-1+(0<dx), (dy>0):nrows-1+(0<dy), j )
                 sum  = sum - logi( (-dx>0):ncols-1-(dx>0), (-dy>0):nrows-1-(dy>0) )
                 mask = mask < masks( (-dx>0):ncols-1-(dx>0), (-dy>0):nrows-1-(dy>0), i )
                 sum = sum * mask
 		karray( (dx>0):ncols-1+(0<dx), (dy>0):nrows-1+(0<dy) ) = karray( (dx>0):ncols-1+(0<dx), (dy>0):nrows-1+(0<dy) ) + sum
-		numarray( (dx>0):ncols-1+(0<dx), (dy>0):nrows-1+(0<dy) ) = numarray( (dx>0):ncols-1+(0<dx), (dy>0):nrows-1+(0<dy) ) + mask
+                numarray( (dx>0):ncols-1+(0<dx), (dy>0):nrows-1+(0<dy) ) = numarray( (dx>0):ncols-1+(0<dx), (dy>0):nrows-1+(0<dy) ) + mask
 
-	ENDFOR
+             ENDFOR
 ENDFOR
 logi = 0
 logj = 0
 tmp = 0
 
 
-valid = WHERE(numarray GT 0)
-karray(valid) = karray(valid)/numarray(valid)
-TVSCL,karray
+;valid = WHERE(numarray GT 0)
+;karray(valid) = karray(valid)/numarray(valid)
+;TVSCL,karray
 
 ; Now iterate to a flat 
 change = 1.
