@@ -856,7 +856,7 @@ class MapOff(object):
     def __str__(self):
         return 'A Class to determine the off pointing of SST maps.'
 
-    def __init__(self,d,ch=[0,1,2,3],direction='az'):
+    def __init__(self,d,ch=[0,1,2,3,4,5],direction='az'):
         self.Version = '20210727T1606BRT'
         self.Channel = {}
 
