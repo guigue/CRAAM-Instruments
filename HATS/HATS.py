@@ -14,7 +14,7 @@ from astropy import units as u
 from astropy import constants as c
 
 #######################################
-__version__       = "2025-10-17T1145BST"
+__version__       = "2026-04-17T0902BST"
 __DATA_FILE__     = "hats_data_rbd.bin"
 __HUSEC_FILE__    = "hats_husec.bin"
 __RECORD_SIZE__   = 38
@@ -172,6 +172,8 @@ short_array       = collections.deque()
 #                     2025-10-08 - Sampa
 #                            - Corrected self.extract() for when Data arrays are empty
 #                            - Added toCSV()
+#                     2026-04-17 - Sampa
+#                             - Corrected extract_scans: opmode were wrong, it only returned the last scans of the series
 #
 ####################################################################################################################################
 
@@ -776,19 +778,20 @@ class hats(object):
     def extract_scans(self,stype='right_ascension'):
 
         if stype=='right_ascension':
-            opmode = 8
-        elif stype=='declination':
             opmode = 7
-        else:
+        elif stype=='declination':
             opmode = 8
+        else:
+            opmode = 7
 
         wscan, = np.where(self.aux.Data['opmode']==opmode)
         icon  = self.seqLims(self.aux.Data['opmode'],opmode)
 
         NScans = icon.shape[0]
         
-        scans = {}
+        scans = []
         for iscan in np.arange(0,NScans):
+            scan = {}
             itr = (self.rbd.Deconv['time']>= self.aux.Data['time'][wscan[icon[iscan,0]]]) &  \
                 (self.rbd.Deconv['time']<= self.aux.Data['time'][wscan[icon[iscan,1]]])
             _husec_ = self.rbd.Deconv['husec'][itr]
@@ -798,17 +801,17 @@ class hats(object):
                 _declination_     = np.interp(_husec_,self.aux.Data['husec'],self.aux.Data['declination'])
                 _elevation_       = np.interp(_husec_,self.aux.Data['husec'],self.aux.Data['elevation'])
                 _azimuth_         = np.interp(_husec_,self.aux.Data['husec'],self.aux.Data['azimuth'])
-            scans.update({
-                'time'            : self.rbd.Deconv['time'][itr],
-                'husec'           : _husec_,
-                'amplitude'       : _amplitude_,
-                'right_ascension' : _right_ascension_,
-                'declination'     : _declination_,
-                'elevation'       : _elevation_,
-                'azimuth'         : _azimuth_
-            })
+                scan.update({
+                    'time'            : self.rbd.Deconv['time'][itr],
+                    'husec'           : _husec_,
+                    'amplitude'       : _amplitude_,
+                    'right_ascension' : _right_ascension_,
+                    'declination'     : _declination_,
+                    'elevation'       : _elevation_,
+                    'azimuth'         : _azimuth_})
+                scans.append(scan)
             
-        return scans
+        return np.asarray(scans)
 
     def skyModel(self,x,Toff,Ts,tau):
         
